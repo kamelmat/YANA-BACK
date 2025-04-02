@@ -14,9 +14,9 @@ from pathlib import Path
 import os
 import sys
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 
 # Application definition
@@ -30,15 +30,18 @@ BASE_APPS = [
     'django.contrib.staticfiles',  
 ]
 
+LOCAL_APPS = [
+    'site_app',
+    'apps.users',
+    'apps.maps',
+]
+
 THIRD_APPS = [
     'rest_framework',
     'corsheaders',
+    'rest_framework_simplejwt',
 ]
 
-LOCAL_APPS = [
-    "apps.users",
-    "apps.maps",
-]
 
 INSTALLED_APPS = BASE_APPS + THIRD_APPS + LOCAL_APPS
 
