@@ -29,3 +29,7 @@ class GenerateUserIDView(APIView):
     def get(self, request):
         user_id = generate_unique_user_id()
         return Response({'user_id': user_id})
+    
+class LoginView(TokenObtainPairView):
+    
+    serializer_class = CustomTokenObtainPairSerializer
