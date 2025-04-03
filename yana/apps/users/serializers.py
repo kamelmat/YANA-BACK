@@ -79,7 +79,7 @@ class LogoutSerializer(serializers.Serializer):
             refresh_token = attrs["refresh"]
             token = RefreshToken(refresh_token)
             token.blacklist()
-        except Exception:
-            raise serializers.ValidationError("Invalid refresh token")
+        except Exception as e:
+            raise serializers.ValidationError(f"Invalid refresh token: {str(e)}")
 
         return attrs
