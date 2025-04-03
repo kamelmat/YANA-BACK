@@ -33,3 +33,11 @@ class GenerateUserIDView(APIView):
 class LoginView(TokenObtainPairView):
     
     serializer_class = CustomTokenObtainPairSerializer
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = LogoutSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response({"message": "Logout successful"})
