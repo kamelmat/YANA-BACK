@@ -13,10 +13,9 @@ from apps.users.utils import generate_unique_user_id
 
 
 class UserAPIVew(APIView):
-    permission_classes = [IsAuthenticated]
-    
+        
     def get(self, request):
-        user = User.objects.all()
+        user = CustomUser.objects.all()
         user_serializer = UserSerializer(user, many = True)
         return Response(user_serializer.data)
 
@@ -36,6 +35,9 @@ class RegisterView(generics.CreateAPIView):
         response_data = {
             "user_id": user.user_id,
             "email": user.email,
+            "name": user.name,
+            "last_name": user.last_name,
+            "date_joined": user.date_joined,
             "access_token": access_token,
             "refresh_token": str(refresh),
         }
@@ -55,3 +57,4 @@ class GenerateUserIDView(APIView):
 class LoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     permission_classes = [AllowAny]
+
