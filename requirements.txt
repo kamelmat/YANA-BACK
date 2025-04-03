@@ -12,3 +12,4 @@ regex==2024.11.6
 sqlparse==0.5.3
 tqdm==4.67.1
 tzdata==2025.2
+pre-commit==3.6.0
