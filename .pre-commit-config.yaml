@@ -3,6 +3,6 @@ repos:
     hooks:
       - id: check-commit-message
         name: Check commit message format
-        entry: python check_commit_message.py
+        entry: ./github/scripts/python check_commit_message.py
         language: system
         stages: [commit-msg]
