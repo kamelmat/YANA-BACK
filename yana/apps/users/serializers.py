@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from rest_framework import serializers 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
 from apps.users.models import *
 
 class UserSerializer(serializers.ModelSerializer):
@@ -69,3 +70,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             }
         })
         return data
+    
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    def validate(self, attrs):
+        try: 
+            refresh_token = attrs["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except Exception as e:
+            raise serializers.ValidationError(f"Invalid refresh token: {str(e)}")
+
+        return attrs
