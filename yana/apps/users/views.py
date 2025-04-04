@@ -48,7 +48,7 @@ class CustomTokenObtainView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     
 class GenerateUserIDView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     
     def get(self, request):
         user_id = generate_unique_user_id()
