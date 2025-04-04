@@ -13,5 +13,4 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/generate-user-id/', GenerateUserIDView.as_view(), name='generate_user_id'),
     path('api/logout/', LogoutView.as_view(), name='logout'),
-    path('api/users/', UserAPIVew.as_view(), name='user_list'),
 ]
