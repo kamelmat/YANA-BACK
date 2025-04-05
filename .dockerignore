@@ -1,0 +1,26 @@
+# Documentación
+README.md
+
+# Git
+.git
+.gitignore
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Cachés de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de desarrollo y pruebas
+.pytest_cache/
+*.log
+.DS_Store
+
+# Configuraciones y workflows
+.pre-commit-config.yaml
+.github/

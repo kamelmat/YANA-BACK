@@ -10,8 +10,9 @@ RUN pip install --upgrade pip && \
   pip install -r requirements.txt --no-cache-dir
 
 # Copia el resto del proyecto
-COPY yana/. .
+COPY yana/. yana/
 
+# Ajusta permisos para el usuario no root (UID 65534, GID 65534)
 RUN chown -R 65534:65534 /app
 
 # Etapa 2: Imagen final
@@ -20,10 +21,17 @@ FROM gcr.io/distroless/python3
 WORKDIR /app
 
 # Copia las dependencias instaladas desde la etapa builder
-COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/lib/python3.12/
-COPY --from=builder --chown=65534:65534 /app /app
+COPY --from=builder /usr/local/lib/python3.11/site-packages/ /usr/lib/python3/dist-packages/
 
+# Copia el directorio yana
+COPY --from=builder --chown=65534:65534 /app/yana /app
+
+# Configura variables de entorno
 ENV PYTHONUNBUFFERED=1 \
   PORT=8000
 
+# Ejecuta como usuario no privilegiado (nonroot)
+USER 65534:65534
+
+# CMD usa el ENTRYPOINT implícito de python en distroless
 CMD ["manage.py", "runserver", "0.0.0.0:8000"]
