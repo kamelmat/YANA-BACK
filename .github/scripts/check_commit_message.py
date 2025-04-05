@@ -5,7 +5,7 @@ import re
 commit_msg_filepath = sys.argv[1]
 
 # Leer el mensaje de commit
-with open(commit_msg_filepath, "r") as file:
+with open(commit_msg_filepath, "r", encoding="utf-8") as file:
     commit_msg = file.read().strip()
 
 # Definir el patrón regex: debe empezar con feat, chore o fix seguido de dos puntos y un espacio
