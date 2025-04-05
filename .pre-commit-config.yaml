@@ -4,5 +4,5 @@ repos:
       - id: check-commit-message
         name: Check commit message format
         entry: python yana/.github/scripts/check_commit_message.py
-        language: python
+        language: system
         stages: [commit-msg]

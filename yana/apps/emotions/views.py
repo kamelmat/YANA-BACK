@@ -1,12 +1,12 @@
 from rest_framework import generics, permissions
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Emotion
 from .serializers import *
 
 class EmotionListView(generics.ListAPIView):
     queryset = Emotion.objects.all()
     serializer_class = EmotionSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [AllowAny]
 
 class UserEmotionCreateView(generics.CreateAPIView):
     serializer_class = UserEmotionSerializer
