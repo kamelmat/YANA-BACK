@@ -70,5 +70,3 @@ secrets.json
 # Archivos de control de versiones de Django y bases de datos locales
 db.sqlite3
 
-.pre-commit-config.yaml
-.github/scripts/check_commit_message.py
