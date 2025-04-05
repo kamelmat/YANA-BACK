@@ -5,8 +5,15 @@ import re
 commit_msg_filepath = sys.argv[1]
 
 # Leer el mensaje de commit
-with open(commit_msg_filepath, "r", encoding="utf-8") as file:
-    commit_msg = file.read().strip()
+try:
+    with open(commit_msg_filepath, "r", encoding="utf-8") as file:
+        commit_msg = file.read().strip()
+except FileNotFoundError:
+    print(f"Error: No se pudo encontrar el archivo '{commit_msg_filepath}'. Verifique la ruta y vuelva a intentarlo.")
+    sys.exit(1)
+except IOError as e:
+    print(f"Error: No se pudo leer el archivo '{commit_msg_filepath}'. Detalles: {e}")
+    sys.exit(1)
 
 # Definir el patrón regex: debe empezar con feat, chore o fix seguido de dos puntos y un espacio
 pattern = r"^(feat|chore|fix): .+"
