@@ -43,6 +43,7 @@ THIRD_APPS = [
     'rest_framework',
     'corsheaders',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 
@@ -94,6 +95,7 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
 
@@ -106,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator','OPTIONS': {'min_length': 8},
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
