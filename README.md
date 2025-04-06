@@ -1,59 +1,95 @@
-# Pasos para instalación de pre-commit
+## **Requisitos Previos**  
+- Python 3.7+ instalado.  
+- Git instalado y configurado.  
+- (Opcional) Entorno virtual recomendado.  
 
-1. Entorno virtual
+---
 
-```
+## **1. Configuración Inicial**  
+
+### **1.1. Crear y activar entorno virtual (recomendado)**  
+```bash
+# Crear entorno virtual (Windows/Linux/macOS)
 python -m venv venv
+
+# Activar entorno en Windows
 venv\Scripts\activate
-```
 
-2. Crear en .github\scripts\check_commit_message.py
-
-```
-import sys
-import re
-
-# Obtener el archivo temporal que contiene el mensaje de commit desde los argumentos
-commit_msg_filepath = sys.argv[1]
-
-# Leer el mensaje de commit
-with open(commit_msg_filepath, "r", encoding="utf-8") as file:
-    commit_msg = file.read().strip()
-
-# Definir el patrón regex: debe empezar con feat, chore o fix seguido de dos puntos y un espacio
-pattern = r"^(feat|chore|fix): .+"
-
-# Validar el mensaje
-if not re.match(pattern, commit_msg):
-    print(f"Error: El mensaje de commit '{commit_msg}' no sigue el formato 'feat|chore|fix: <descripción>'")
-    print("Ejemplo válido: 'feat: agregar nueva funcionalidad'")
-    sys.exit(1)
-
-# Si pasa la validación, salir con éxito
-sys.exit(0)
-```
-
-3. Crear en la raiz del proyecto .pre-commit-config.yaml
-
-```
-repos:
-  - repo: local
-    hooks:
-      - id: check-commit-message
-        name: Check commit message format
-        entry: python .github/scripts/check_commit_message.py
-        language: python
-        stages: [commit-msg]
-```
-
-4. Instalación de pre-commit
-
-```
+### **1.2. Instalar `pre-commit`**  
+```bash
 pip install pre-commit
-
-pre-commit install --hook-type commit-msg
 ```
 
-# Run the server
+---
 
+## **2. Configurar el Hook para Mensajes de Commit**  
 
+### **2.1. Crear el script de validación**  
+- **Ruta del archivo**:  
+  ```plaintext
+  .github/scripts/check_commit_message.py
+  ```  
+- **Contenido del script**:  
+  ```python
+  import sys
+  import re
+
+  #Obtener el archivo temporal que contiene el mensaje de commit desde los argumentos
+  commit_msg_filepath = sys.argv[1]
+
+  #Leer el mensaje de commit
+  with open(commit_msg_filepath, "r", encoding="utf-8") as file:
+      commit_msg = file.read().strip()
+
+  # Definir el patrón regex
+  if not re.match(r"^(feat|chore|fix): .+", commit_msg):
+      print("Error: El mensaje debe seguir el formato 'tipo: descripción'")
+      print("Ejemplos válidos:")
+      print("feat: agregar login")
+      print("chore: actualizar dependencias")
+      print("fix: corregir error en API")
+      sys.exit(1)
+
+  sys.exit(0)
+  ```
+
+### **2.2. Configurar `.pre-commit-config.yaml`**  
+- **Archivo en la raíz del proyecto**:  
+  ```yaml
+  repos:
+    - repo: local
+      hooks:
+        - id: check-commit-message
+          name: Validar formato de commit
+          entry: python .github/scripts/check_commit_message.py
+          language: python
+          stages: [commit-msg]
+  ```
+
+---
+
+## **3. Instalar el Hook en el Repositorio**  
+- **Instalar el hook (solo una vez por repositorio)**:  
+  ```bash
+  pre-commit install --hook-type commit-msg
+  ```
+
+- **Probar manualmente (opcional)**:  
+  ```bash
+  pre-commit run --all-files
+  ```
+
+---
+
+## **4. Ejecutar el Servidor con Hooks**  
+
+- **Instalar dependencias**:   
+  ```bash
+  pip install - r requirements.txt 
+  ```
+
+- **Iniciar el servidor**:   
+
+  ```bash
+  python3 site_app/manage.py runserver
+  ```
