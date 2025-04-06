@@ -6,12 +6,7 @@ class EmotionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Emotion
-        fields = ['id', 'name', 'icon_url']
+        fields = ['id', 'name', 'image']
 
-    def get_icon_url(self, obj):
-        return f"/media/emotions/{obj.name}.svg"
 
-class UserEmotionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserEmotion
-        fields = ['id', 'emotion', 'timestamp']
+
