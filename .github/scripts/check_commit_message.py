@@ -18,4 +18,5 @@ if not re.match(pattern, commit_msg):
     sys.exit(1)
 
 #Si pasa la validación, salir con éxito
+
 sys.exit(0)
