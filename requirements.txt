@@ -21,4 +21,3 @@ sqlparse==0.5.3
 tqdm==4.67.1
 tzdata==2025.2
 pre-commit
-

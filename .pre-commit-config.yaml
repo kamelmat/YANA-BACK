@@ -6,4 +6,3 @@ repos:
         entry: python .github/scripts/check_commit_message.py
         language: python
         stages: [commit-msg]
-
