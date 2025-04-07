@@ -17,14 +17,14 @@ class UserEmotionCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 """
-"""
+
 class UserEmotionListView(generics.ListAPIView):
-    serializer_class = EmotionSerializer
+    serializer_class = UserEmotionListSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Emotion.objects.filter(user=self.request.user).order_by('-timestamp')
-"""
+        return UserEmotion.objects.filter(user=self.request.user).order_by('-timestamp')
+
 class CreateEmotionView(generics.CreateAPIView):
     serializer_class = EmotionSerializer
 
