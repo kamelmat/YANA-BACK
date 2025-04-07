@@ -9,14 +9,14 @@ class EmotionListView(generics.ListAPIView):
     serializer_class = EmotionSerializer
     permission_classes = [AllowAny]
 
-"""""
-class UserEmotionCreateView(generics.CreateAPIView):
+
+class UserCreateEmotionView(generics.CreateAPIView):
     serializer_class = EmotionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-"""
+
 """
 class UserEmotionListView(generics.ListAPIView):
     serializer_class = EmotionSerializer
