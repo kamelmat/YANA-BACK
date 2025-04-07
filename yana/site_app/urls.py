@@ -25,3 +25,4 @@ urlpatterns = [
     path("emociones/", include("apps.emotions.urls")),
     
 ] 
+ 
