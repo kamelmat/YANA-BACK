@@ -70,7 +70,7 @@ class LogoutView(APIView):
 class UserDetailView(APIView):
     permission_classes = [IsAuthenticated]
     
-    def get(self, request, user_id):
-        user = get_object_or_404(CustomUser, user_id=user_id)
+    def get(self, request, id):
+        user = get_object_or_404(CustomUser, id=id)
         serializer = UserSerializer(user)
         return Response(serializer.data)

@@ -11,5 +11,5 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/generate-user-id/', GenerateUserIDView.as_view(), name='generate_user_id'),
     path('api/logout/', LogoutView.as_view(), name='logout'),
-    path('api/users/<str:user_id>/', UserDetailView.as_view(), name='user-detail'),
+    path('api/users/<str:id>/', UserDetailView.as_view(), name='user-detail'),
 ]
