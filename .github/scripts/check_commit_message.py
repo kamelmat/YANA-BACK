@@ -1,7 +1,7 @@
 import sys
 import re
 
-#Obtener el archivo temporal que contiene el mensaje de commit desde los argumentos
+# Obtener el archivo temporal que contiene el mensaje de commit desde los argumentos
 commit_msg_filepath = sys.argv[1]
 
 #Leer el mensaje de commit
