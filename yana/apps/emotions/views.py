@@ -27,15 +27,20 @@ class UserEmotionListView(generics.ListAPIView):
 
 class CreateEmotionView(generics.CreateAPIView):
     serializer_class = EmotionSerializer
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save()
 
 class EmotionBulkCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = EmotionSerializer
+
     def post(self, request, *args, **kwargs):
         data = request.data
         serializer = EmotionSerializer(data=data, many=True)
         
         if serializer.is_valid():
+            serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)

@@ -6,7 +6,7 @@ class Emotion(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return  "f{self.name} {self.image}"
+        return self.name
     
 class UserEmotion(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
