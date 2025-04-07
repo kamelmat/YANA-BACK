@@ -6,6 +6,3 @@ class EmotionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Emotion
         fields = ['id', 'name', 'image']
-
-
-
