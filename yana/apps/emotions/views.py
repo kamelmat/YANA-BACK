@@ -19,7 +19,7 @@ class UserCreateEmotionView(generics.CreateAPIView):
 
 
 class UserEmotionListView(generics.ListAPIView):
-    serializer_class = UserEmotionListSerializer
+    serializer_class = UserEmotionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
