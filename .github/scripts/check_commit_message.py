@@ -17,5 +17,6 @@ if not re.match(pattern, commit_msg):
     print("Ejemplo válido: 'feat: agregar nueva funcionalidad'")
     sys.exit(1)
 
-# Si pasa la validación, salir con éxito
+#Si pasa la validación, salir con éxito
+
 sys.exit(0)
