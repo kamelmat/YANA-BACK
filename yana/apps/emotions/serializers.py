@@ -5,11 +5,13 @@ class EmotionSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False, allow_null=True)
     class Meta:
         model = Emotion
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'image']
 
-class UserEmotionListSerializer(serializers.ModelSerializer):
-    emotion = serializers.StringRelatedField()
+#emociones que agrega el usuario:
+class UserEmotionSerializer(serializers.ModelSerializer):
+    emotion_name = serializers.CharField(source='emotion.name', read_only=True)
+
     class Meta:
         model = UserEmotion
-        fields = ['id', 'emotion', 'timestamp']
+        fields = ['id', 'emotion', 'timestamp', 'emotion_name']
 

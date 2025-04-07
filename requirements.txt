@@ -20,4 +20,6 @@ regex==2024.11.6
 sqlparse==0.5.3
 tqdm==4.67.1
 tzdata==2025.2
+virtualenv==20.30.0
+pillow==11.1.0
 pre-commit
