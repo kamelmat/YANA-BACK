@@ -16,7 +16,6 @@ python -m venv venv
 venv\Scripts\activate
 
 ### **1.2. Instalar `pre-commit`**  
-```bash
 pip install pre-commit
 ```
 
