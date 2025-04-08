@@ -8,4 +8,6 @@ urlpatterns = [
     
     #emociones que agrega/elimina el usuario:
     path('user/emotions/create/', UserCreateEmotionView.as_view(), name='user-create-emotion'),
+    path('user/emotions/', UserEmotionListView.as_view(), name='user-emotion-list'),
+
 ]
