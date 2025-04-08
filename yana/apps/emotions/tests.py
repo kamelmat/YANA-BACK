@@ -58,14 +58,14 @@ class EmotionViewTest(TestCase):
 
     def test_create_emotion_authenticated(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('create-emotion')
-        data = {'name': 'Sad'}
+        url = reverse('user-create-emotion')
+        data = {'emotion': self.emotion.id}
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Emotion.objects.count(), 2)
+        self.assertEqual(UserEmotion.objects.count(), 2)
 
     def test_create_emotion_unauthenticated(self):
-        url = reverse('create-emotion')
+        url = reverse('user-create-emotion')
         data = {'name': 'Sad'}
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

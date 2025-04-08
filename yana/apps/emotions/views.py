@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Emotion
+from .models import Emotion, UserEmotion
 from .serializers import *
 from rest_framework.response import Response
 
@@ -11,7 +11,7 @@ class EmotionListView(generics.ListAPIView):
 
 
 class UserCreateEmotionView(generics.CreateAPIView):
-    serializer_class = EmotionSerializer
+    serializer_class = UserEmotionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):

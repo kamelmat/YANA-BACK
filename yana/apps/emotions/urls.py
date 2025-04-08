@@ -6,8 +6,6 @@ urlpatterns = [
     path('user/emotions/bulk/', EmotionBulkCreateView.as_view(), name='emotion-bulk-create'),
     path('user/available/emotions/', EmotionListView.as_view(), name='emotion-list'),
     
-    path('user/emotions/bulk/', EmotionBulkCreateView.as_view(), name='user-emotion-bulk-create'),
-    path('user/emotions/', EmotionListView.as_view(), name='emotion-list'),
     #emociones que agrega/elimina el usuario:
-    path('user/emotions/create/', CreateEmotionView.as_view(), name='create-emotion'),
+    path('user/emotions/create/', UserCreateEmotionView.as_view(), name='user-create-emotion'),
 ]
