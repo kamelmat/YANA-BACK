@@ -4,8 +4,6 @@ from apps.users.views import UserAPIVew
 from apps.users.views import *
 from rest_framework_simplejwt.views import TokenRefreshView
 
-
-
 urlpatterns = [
     path('api/register/', RegisterView.as_view(), name='register'),
     path('api/login/', LoginView.as_view(), name='login'),
@@ -14,4 +12,5 @@ urlpatterns = [
     path('api/generate-user-id/', GenerateUserIDView.as_view(), name='generate_user_id'),
     path('api/logout/', LogoutView.as_view(), name='logout'),
     path('api/users/', UserAPIVew.as_view(), name='user-list'),
+    path('api/users/<str:id>/', UserDetailView.as_view(), name='user-detail'),
 ]

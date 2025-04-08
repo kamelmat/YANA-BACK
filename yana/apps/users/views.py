@@ -10,7 +10,7 @@ from apps.users.serializers import UserSerializer
 from apps.users.models import *
 from apps.users.serializers import *
 from apps.users.utils import generate_unique_user_id
-
+from django.shortcuts import get_object_or_404
 
 class UserAPIVew(APIView):
         
@@ -66,3 +66,11 @@ class LogoutView(APIView):
         if serializer.is_valid():
             return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, id):
+        user = get_object_or_404(CustomUser, id=id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
