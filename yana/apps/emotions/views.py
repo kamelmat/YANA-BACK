@@ -17,25 +17,30 @@ class UserCreateEmotionView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-"""
+
 class UserEmotionListView(generics.ListAPIView):
-    serializer_class = EmotionSerializer
+    serializer_class = UserEmotionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Emotion.objects.filter(user=self.request.user).order_by('-timestamp')
-"""
+        return UserEmotion.objects.filter(user=self.request.user).order_by('-timestamp')
+
 class CreateEmotionView(generics.CreateAPIView):
     serializer_class = EmotionSerializer
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save()
 
 class EmotionBulkCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = EmotionSerializer
+
     def post(self, request, *args, **kwargs):
         data = request.data
         serializer = EmotionSerializer(data=data, many=True)
         
         if serializer.is_valid():
+            serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
