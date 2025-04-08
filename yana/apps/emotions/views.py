@@ -4,26 +4,11 @@ from .models import Emotion, UserEmotion
 from .serializers import *
 from rest_framework.response import Response
 
+#emociones que gestionamos desde el admin:
 class EmotionListView(generics.ListAPIView):
     queryset = Emotion.objects.all()
     serializer_class = EmotionSerializer
     permission_classes = [AllowAny]
-
-
-class UserCreateEmotionView(generics.CreateAPIView):
-    serializer_class = UserEmotionSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-
-class UserEmotionListView(generics.ListAPIView):
-    serializer_class = UserEmotionSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        return UserEmotion.objects.filter(user=self.request.user).order_by('-timestamp')
 
 class CreateEmotionView(generics.CreateAPIView):
     serializer_class = EmotionSerializer
@@ -44,3 +29,21 @@ class EmotionBulkCreateView(generics.CreateAPIView):
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
+
+
+#emociones que agrega el usuario:
+class UserCreateEmotionView(generics.CreateAPIView):
+    serializer_class = UserEmotionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class UserEmotionListView(generics.ListAPIView):
+    serializer_class = UserEmotionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return UserEmotion.objects.filter(user=self.request.user).order_by('-timestamp')
+
