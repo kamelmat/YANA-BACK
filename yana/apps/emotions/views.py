@@ -6,6 +6,7 @@ from .models import Emotion, SharedEmotion
 from .serializers import *
 from rest_framework.response import Response
 import math
+from .permissions import IsAdminUser
 
 #emociones que gestionamos desde el admin:
 class EmotionListView(generics.ListAPIView):
@@ -15,13 +16,13 @@ class EmotionListView(generics.ListAPIView):
 
 class CreateEmotionView(generics.CreateAPIView):
     serializer_class = EmotionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_create(self, serializer):
         serializer.save()
 
 class EmotionBulkCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = EmotionSerializer
 
     def post(self, request, *args, **kwargs):
