@@ -6,11 +6,9 @@ class EmotionSerializer(serializers.ModelSerializer):
         model = Emotion
         fields = ['id', 'name']
 
-#emociones que agrega el usuario:
-class UserEmotionSerializer(serializers.ModelSerializer):
+class SharedEmotionSerializer(serializers.ModelSerializer):
     emotion_name = serializers.CharField(source='emotion.name', read_only=True)
 
     class Meta:
-        model = UserEmotion
-        fields = ['id', 'emotion', 'timestamp', 'emotion_name']
-
+        model = SharedEmotion
+        fields = ['id', 'emotion', "latitude", "longitude", "created_at", "is_active"]

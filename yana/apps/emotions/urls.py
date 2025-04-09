@@ -9,5 +9,8 @@ urlpatterns = [
     
     #emociones que agrega/elimina el usuario:
     path('user/emotions/create/', UserCreateEmotionView.as_view(), name='user-create-emotion'),
-    path('user/emotions/', UserEmotionListView.as_view(), name='user-emotion-list'),
+    path('user/emotions/', SharedEmotionListView.as_view(), name='user-emotion-list'),
+    
+    #emociones cercanas
+    path('api/nearby-emotions/', NearbyEmotionsView.as_view(), name='nearby_emotions'),
 ]
