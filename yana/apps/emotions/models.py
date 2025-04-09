@@ -11,4 +11,14 @@ class Emotion(models.Model):
 class UserEmotion(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     emotion = models.ForeignKey(Emotion, on_delete=models.CASCADE)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
     timestamp = models.DateTimeField(auto_now_add=True)
+
+class SharedEmotion(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    emotion = models.ForeignKey(Emotion, on_delete=models.CASCADE)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
