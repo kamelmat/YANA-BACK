@@ -7,8 +7,9 @@ class EmotionSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 class SharedEmotionSerializer(serializers.ModelSerializer):
-    emotion_name = serializers.CharField(source='emotion.name', read_only=True)
+    emotion = serializers.CharField(source='emotion.name', read_only=True)
+    emotion_id = serializers.PrimaryKeyRelatedField(queryset=Emotion.objects.all(), write_only=True, source='emotion')
 
     class Meta:
         model = SharedEmotion
-        fields = ['id', 'emotion', "latitude", "longitude", "created_at", "is_active"]
+        fields = ['emotion', 'emotion_id', "latitude", "longitude", "created_at", "is_active"]
