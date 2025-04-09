@@ -36,7 +36,6 @@ BASE_APPS = [
 LOCAL_APPS = [
     'site_app',
     'apps.users',
-    'apps.maps',
     'apps.emotions',
 ]
 

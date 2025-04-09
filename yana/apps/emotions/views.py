@@ -2,7 +2,7 @@ from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework import status
-from .models import Emotion, UserEmotion, SharedEmotion
+from .models import Emotion, SharedEmotion
 from .serializers import *
 from rest_framework.response import Response
 import math
