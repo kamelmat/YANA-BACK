@@ -48,7 +48,7 @@ class SharedEmotionListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return SharedEmotion.objects.filter(user=self.request.user).order_by('-timestamp')
+        return SharedEmotion.objects.filter(user=self.request.user).order_by('-created_at')
 
 #Emociones geospaciales
 class NearbyEmotionsView(APIView):
@@ -69,14 +69,14 @@ class NearbyEmotionsView(APIView):
             return R * (2 * math.atan2(math.sqrt(a), math.sqrt(1 - a)))
 
         nearby = []
-        for ue in UserEmotion.objects.select_related('emotion').all():
-            distance = haversine(lat, lon, ue.latitude, ue.longitude)
+        for se in SharedEmotion.objects.select_related('emotion').filter(is_active=True):
+            distance = haversine(lat, lon, se.latitude, se.longitude)
             if distance <= radius_km:
                 nearby.append({
-                    'emotion_id': ue.emotion.id,
-                    'emotion_name': ue.emotion.name,
-                    'latitude': ue.latitude,
-                    'longitude': ue.longitude,
+                    'emotion_id': se.emotion.id,
+                    'emotion': se.emotion.name,
+                    'latitude': se.latitude,
+                    'longitude': se.longitude,
                 })
 
         return Response(nearby, status=status.HTTP_200_OK)
