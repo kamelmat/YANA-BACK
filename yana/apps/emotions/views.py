@@ -33,6 +33,11 @@ class EmotionBulkCreateView(generics.CreateAPIView):
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
+    
+class DeleteEmotionView(generics.DestroyAPIView):
+    queryset = Emotion.objects.all()
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = EmotionSerializer
 
 
 #emociones que agrega el usuario:
