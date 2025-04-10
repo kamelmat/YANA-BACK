@@ -74,3 +74,20 @@ class UserDetailView(APIView):
         user = get_object_or_404(CustomUser, id=id)
         serializer = UserSerializer(user)
         return Response(serializer.data)
+
+class EmailCheckView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response(
+                {"error": "Email is required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        email_exists = CustomUser.objects.filter(email=email).exists()
+        return Response(
+            {"email_exists": email_exists},
+            status=status.HTTP_200_OK
+        )
