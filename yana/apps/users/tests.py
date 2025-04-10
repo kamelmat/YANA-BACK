@@ -111,3 +111,24 @@ class UserViewTest(TestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('password', response.data)
+
+    def test_check_email_exists(self):
+        url = reverse('check-email')
+        data = {'email': 'test@example.com'}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['email_exists'])
+
+    def test_check_email_not_exists(self):
+        url = reverse('check-email')
+        data = {'email': 'nonexistent@example.com'}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['email_exists'])
+
+    def test_check_email_missing(self):
+        url = reverse('check-email')
+        data = {}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.data)
