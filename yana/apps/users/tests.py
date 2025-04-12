@@ -132,3 +132,27 @@ class UserViewTest(TestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('error', response.data)
+
+    def test_delete_account(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('delete-account')
+        data = {'password': 'testpass123'}
+        response = self.client.delete(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"message": "Account successfully deleted"})
+        self.assertFalse(CustomUser.objects.filter(email='test@example.com').exists())
+
+    def test_delete_account_wrong_password(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('delete-account')
+        data = {'password': 'wrongpassword'}
+        response = self.client.delete(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('non_field_errors', response.data)
+
+    def test_delete_account_unauthenticated(self):
+        url = reverse('delete-account')
+        data = {'password': 'testpass123'}
+        response = self.client.delete(url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
