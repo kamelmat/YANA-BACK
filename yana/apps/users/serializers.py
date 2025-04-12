@@ -83,3 +83,12 @@ class LogoutSerializer(serializers.Serializer):
             raise serializers.ValidationError(f"Invalid refresh token: {str(e)}")
 
         return attrs
+
+class DeleteAccountSerializer(serializers.Serializer):
+    password = serializers.CharField(required=True, write_only=True)
+
+    def validate(self, attrs):
+        user = self.context['request'].user
+        if not user.check_password(attrs['password']):
+            raise serializers.ValidationError("Incorrect password")
+        return attrs

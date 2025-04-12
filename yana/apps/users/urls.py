@@ -14,4 +14,5 @@ urlpatterns = [
     path('api/users/', UserAPIVew.as_view(), name='user-list'),
     path('api/users/<str:id>/', UserDetailView.as_view(), name='user-detail'),
     path('api/check-email/', EmailCheckView.as_view(), name='check-email'),
+    path('api/delete-account/', DeleteAccountView.as_view(), name='delete-account'),
 ]
