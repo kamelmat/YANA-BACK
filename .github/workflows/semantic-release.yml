@@ -1,0 +1,37 @@
+name: Semantic Release
+
+on:
+  push:
+    branches:
+      - main
+      - cicd/pipeline
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: python
+          target-branch: main
+          config-file: release-please-config.json
+
+      # - name: Slack Notification
+      #   if: ${{ steps.release.outputs.release_created }}
+      #   env:
+      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      #   run: |
+      #     curl -X POST -H 'Content-type: application/json' \
+      #       --data "{
+      #         \"text\": \"🚀 New release created!\nVersion: ${{ steps.release.outputs.tag_name }}\nChangelog: https://github.com/${{ github.repository }}/releases/tag/${{ steps.release.outputs.tag_name }}\"
+      #       }" ${{ env.SLACK_WEBHOOK }}

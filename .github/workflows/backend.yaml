@@ -1,0 +1,114 @@
+name: GCP Production CI/CD Pipeline
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - main
+      - cicd/pipeline
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: "training-batch-05"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Latest Release Version
+        id: get-version
+        run: |
+          # Obtener la última release desde el API de GitHub
+          LATEST_TAG=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/releases/latest | \
+            jq -r .tag_name)
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No releases found, defaulting to v0.0.0"
+            LATEST_TAG="v0.0.0"
+          fi
+          echo "version=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push Docker Image to Artifact Registry
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:${{ steps.get-version.outputs.version }}
+            us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:${{ github.sha }}
+          cache-from: type=registry,ref=us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/buildcache
+          cache-to: type=registry,ref=us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/buildcache,mode=max
+
+      # - name: Deploy to Cloud Run
+      #   run: |
+      #     gcloud run deploy yana-back \
+      #       --image us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:${{ steps.get-version.outputs.version }} \
+      #       --region us-central1 \
+      #       --platform managed \
+      #       --allow-unauthenticated \
+      #       --port 8000 \
+      #       --set-env-vars "PYTHONUNBUFFERED=1,PORT=8000,PYTHONPATH=/app:/app/yana:/usr/lib/python3/dist-packages" \
+      #       --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
+      #       --set-env-vars "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }},DEBUG=false"
+
+      # - name: Verify Cloud Run Deployment
+      #   run: |
+      #     sleep 10  # Esperar a que el despliegue se estabilice
+      #     STATUS=$(gcloud run services describe yana-back --region us-central1 --format 'value(status.conditions[0].status)')
+      #     if [ "$STATUS" != "True" ]; then
+      #       echo "Deployment failed!"
+      #       exit 1
+      #     fi
+
+      # - name: Deploy to Cloud Run
+      #   if: github.ref == 'refs/heads/main'
+      #   run: |
+      #     gcloud run deploy yana-back \
+      #       --image us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:latest \
+      #       --region us-central1 \
+      #       --platform managed \
+      #       --allow-unauthenticated \
+      #       --port 8000 \
+      #       --set-env-vars "PYTHONUNBUFFERED=1,PORT=8000,PYTHONPATH=/app:/app/yana:/usr/lib/python3/dist-packages" \
+      #       --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
+      #       --set-env-vars "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }},DEBUG=false"
+
+      # - name: Verify Cloud Run Deployment
+      #   if: github.ref == 'refs/heads/main'
+      #   run: |
+      #     sleep 10  # Wait for deployment to settle
+      #     STATUS=$(gcloud run services describe yana-back --region us-central1 --format 'value(status.conditions[0].status)')
+      #     if [ "$STATUS" != "True" ]; then
+      #       echo "Deployment failed!"
+      #       exit 1
+      #     fi

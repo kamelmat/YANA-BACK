@@ -15,7 +15,10 @@ python -m venv venv
 # Activar entorno en Windows
 venv\Scripts\activate
 
-### **1.2. Instalar `pre-commit`**  
+# Activar entorno en Linux
+source venv/Scripts/activate
+
+# Instalar pre-commit**  
 pip install pre-commit
 ```
 
