@@ -33,7 +33,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: python
-          target-branch: main
+          target-branch: cicd/pipeline
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
