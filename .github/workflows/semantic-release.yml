@@ -18,6 +18,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Debug Repository State
+        run: |
+          echo "Listando releases:"
+          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/releases | jq .
+          echo "Listando tags:"
+          git tag -l
+          echo "Listando commits recientes:"
+          git log --oneline -n 10
+
       - uses: googleapis/release-please-action@v4
         id: release
         with:
@@ -25,6 +35,15 @@ jobs:
           release-type: python
           target-branch: main
           config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - name: Debug Release Please Output
+        if: always()
+        run: |
+          echo "Release creado: ${{ steps.release.outputs.release_created }}"
+          echo "Nombre del tag: ${{ steps.release.outputs.tag_name }}"
+          echo "Todos los outputs:"
+          echo "${{ toJSON(steps.release.outputs) }}"
 
       # - name: Slack Notification
       #   if: ${{ steps.release.outputs.release_created }}
