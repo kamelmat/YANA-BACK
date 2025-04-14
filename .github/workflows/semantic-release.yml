@@ -27,6 +27,8 @@ jobs:
           git tag -l
           echo "Listando commits recientes:"
           git log --oneline -n 10
+          echo "Listando commits en cicd/pipeline que siguen Conventional Commits:"
+          git log --oneline --grep='^(feat|fix|chore)(\(.+\))?!?: .+' cicd/pipeline
 
       - uses: googleapis/release-please-action@v4
         id: release
@@ -44,13 +46,3 @@ jobs:
           echo "Nombre del tag: ${{ steps.release.outputs.tag_name }}"
           echo "Todos los outputs:"
           echo "${{ toJSON(steps.release.outputs) }}"
-
-      # - name: Slack Notification
-      #   if: ${{ steps.release.outputs.release_created }}
-      #   env:
-      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-      #   run: |
-      #     curl -X POST -H 'Content-type: application/json' \
-      #       --data "{
-      #         \"text\": \"🚀 New release created!\nVersion: ${{ steps.release.outputs.tag_name }}\nChangelog: https://github.com/${{ github.repository }}/releases/tag/${{ steps.release.outputs.tag_name }}\"
-      #       }" ${{ env.SLACK_WEBHOOK }}
