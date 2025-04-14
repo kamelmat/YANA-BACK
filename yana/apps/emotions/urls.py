@@ -14,4 +14,6 @@ urlpatterns = [
     
     #emociones cercanas
     path('api/nearby-emotions/', NearbyEmotionsView.as_view(), name='nearby_emotions'),
+    path('api/global-emotions/', GlobalEmotionsSummaryView.as_view(), name='global-emotions-summary'),
+
 ]

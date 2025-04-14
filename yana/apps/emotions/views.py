@@ -7,6 +7,7 @@ from .serializers import *
 from rest_framework.response import Response
 import math
 from .permissions import IsAdminUser
+from django.db.models import Count
 
 #emociones que gestionamos desde el admin:
 class EmotionListView(generics.ListAPIView):
@@ -86,3 +87,16 @@ class NearbyEmotionsView(APIView):
                 })
 
         return Response(nearby, status=status.HTTP_200_OK)
+    
+
+class GlobalEmotionsSummaryView(APIView):
+        def get(self, request):
+            emotion_counts = (
+            SharedEmotion.objects
+            .filter(is_active=True)
+            .values('emotion__name')
+            .annotate(count=Count('id'))
+        )
+
+            result = {item['emotion__name']: item['count'] for item in emotion_counts}
+            return Response(result)
