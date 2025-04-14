@@ -91,3 +91,16 @@ class EmailCheckView(APIView):
             {"email_exists": email_exists},
             status=status.HTTP_200_OK
         )
+
+class DeleteAccountView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def delete(self, request):
+        serializer = DeleteAccountSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            request.user.delete()
+            return Response(
+                {"message": "Account successfully deleted"},
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
