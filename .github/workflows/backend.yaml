@@ -103,12 +103,7 @@ jobs:
             --set-env-vars "PYTHONUNBUFFERED=1,PORT=8000,PYTHONPATH=/app:/app/yana:/usr/local/lib/python3.11/site-packages" \
             --set-env-vars "DATABASE_URL=$DATABASE_URL" \
             --set-env-vars "DJANGO_SECRET_KEY=${{ env.SECRET_KEY }},DEBUG=false" \
-            --no-traffic
-
-          # Asignar tráfico gradualmente
-          gcloud run services update-traffic yana-back \
-            --region us-east1 \
-            --to-revisions LATEST=100
+            --no-allow-unauthenticated
 
       - name: Clean up old revisions
         if: success()
