@@ -67,6 +67,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data.update({
             'user': {
                 'email': self.user.email,
+                'user_id': self.user.user_id,
+                'name': self.user.name,
+                'avatar_id': self.user.avatar_id
             }
         })
         return data
