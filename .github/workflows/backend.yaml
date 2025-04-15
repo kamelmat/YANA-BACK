@@ -13,9 +13,15 @@ on:
 
 env:
   PROJECT_ID: "training-batch-05"
+  DB_NAME: ${{ secrets.DB_NAME }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_PORT: ${{ secrets.DB_PORT }}
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
 jobs:
-  build-and-deploy:
+  build-and-push-image:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -30,7 +36,6 @@ jobs:
       - name: Get Latest Release Version
         id: get-version
         run: |
-          # Obtener la última release desde el API de GitHub
           LATEST_TAG=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             https://api.github.com/repos/${{ github.repository }}/releases/latest | \
             jq -r .tag_name)
@@ -54,11 +59,6 @@ jobs:
         run: |
           gcloud auth configure-docker us-east1-docker.pkg.dev
 
-      - name: Verify gcloud Authentication
-        run: |
-          gcloud auth list
-          gcloud auth print-access-token
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -74,46 +74,51 @@ jobs:
           cache-from: type=registry,ref=us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/buildcache
           cache-to: type=registry,ref=us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/buildcache,mode=max
 
-      # - name: Deploy to Cloud Run
-      #   run: |
-      #     gcloud run deploy yana-back \
-      #       --image us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:${{ steps.get-version.outputs.version }} \
-      #       --region us-central1 \
-      #       --platform managed \
-      #       --allow-unauthenticated \
-      #       --port 8000 \
-      #       --set-env-vars "PYTHONUNBUFFERED=1,PORT=8000,PYTHONPATH=/app:/app/yana:/usr/lib/python3/dist-packages" \
-      #       --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
-      #       --set-env-vars "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }},DEBUG=false"
+  deploy-to-GCP:
+    runs-on: [self-hosted, linux, prod, GCP]
+    needs: build-and-push-image
+    permissions:
+      contents: read
+      id-token: write
 
-      # - name: Verify Cloud Run Deployment
-      #   run: |
-      #     sleep 10  # Esperar a que el despliegue se estabilice
-      #     STATUS=$(gcloud run services describe yana-back --region us-central1 --format 'value(status.conditions[0].status)')
-      #     if [ "$STATUS" != "True" ]; then
-      #       echo "Deployment failed!"
-      #       exit 1
-      #     fi
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      # - name: Deploy to Cloud Run
-      #   if: github.ref == 'refs/heads/main'
-      #   run: |
-      #     gcloud run deploy yana-back \
-      #       --image us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:latest \
-      #       --region us-central1 \
-      #       --platform managed \
-      #       --allow-unauthenticated \
-      #       --port 8000 \
-      #       --set-env-vars "PYTHONUNBUFFERED=1,PORT=8000,PYTHONPATH=/app:/app/yana:/usr/lib/python3/dist-packages" \
-      #       --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
-      #       --set-env-vars "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }},DEBUG=false"
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
 
-      # - name: Verify Cloud Run Deployment
-      #   if: github.ref == 'refs/heads/main'
-      #   run: |
-      #     sleep 10  # Wait for deployment to settle
-      #     STATUS=$(gcloud run services describe yana-back --region us-central1 --format 'value(status.conditions[0].status)')
-      #     if [ "$STATUS" != "True" ]; then
-      #       echo "Deployment failed!"
-      #       exit 1
-      #     fi
+      - name: Deploy to Cloud Run
+        run: |
+          DATABASE_URL="postgresql://${{ env.DB_USER }}:${{ env.DB_PASSWORD }}@${{ env.DB_HOST }}:${{ env.DB_PORT }}/${{ env.DB_NAME }}"
+
+          gcloud run deploy yana-back \
+            --image us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:latest \
+            --region us-east1 \
+            --port 8000 \
+            --set-env-vars "PYTHONUNBUFFERED=1,PORT=8000,PYTHONPATH=/app:/app/yana:/usr/local/lib/python3.11/site-packages" \
+            --set-env-vars "DATABASE_URL=$DATABASE_URL" \
+            --set-env-vars "DJANGO_SECRET_KEY=${{ env.SECRET_KEY }},DEBUG=false" \
+            --no-traffic
+
+          # Asignar tráfico gradualmente
+          gcloud run services update-traffic yana-back \
+            --region us-east1 \
+            --to-revisions LATEST=100
+
+      - name: Clean up old revisions
+        if: success()
+        run: |
+          gcloud run revisions list --region us-east1 --service yana-back --format 'value(metadata.name)' | \
+          grep -v "$(gcloud run services describe yana-back --region us-east1 --format 'value(status.latestReadyRevisionName)')" | \
+          xargs -I {} gcloud run revisions delete {} --region us-east1 --quiet
+
+      - name: Clean up workspace
+        if: always()
+        run: |
+          docker system prune -af
+          rm -rf /home/github-runner/actions-runner/_work/*
