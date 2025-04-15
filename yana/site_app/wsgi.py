@@ -8,9 +8,14 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/wsgi/
 """
 
 import os
+import sys
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'site_app.settings.production')
+# Use test settings when running tests
+if 'test' in sys.argv:
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_settings')
+else:
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'site_app.settings.production')
 
 application = get_wsgi_application()
