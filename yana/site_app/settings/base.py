@@ -37,6 +37,7 @@ LOCAL_APPS = [
     'site_app',
     'apps.users',
     'apps.emotions',
+    'apps.message',
 ]
 
 THIRD_APPS = [
