@@ -64,8 +64,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:${{ steps.get-version.outputs.version }}
-            us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:${{ github.sha }}
+            us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:latest
+          # us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:${{ steps.get-version.outputs.version }}
           cache-from: type=registry,ref=us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/buildcache
           cache-to: type=registry,ref=us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/buildcache,mode=max
 
