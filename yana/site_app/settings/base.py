@@ -150,7 +150,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'yana/media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Test Runner
-TEST_RUNNER = 'site_app.test_runner.PostgresTestRunner'
+TEST_RUNNER = 'site_app.test_runner.CustomTestRunner'
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
