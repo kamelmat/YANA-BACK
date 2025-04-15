@@ -104,6 +104,7 @@ jobs:
             --set-env-vars "DATABASE_URL=$DATABASE_URL" \
             --set-env-vars "DJANGO_SECRET_KEY=${{ env.SECRET_KEY }},DEBUG=false" \
             --no-allow-unauthenticated
+            --service-account=gh-actions-gcp@training-batch-05.iam.gserviceaccount.com
 
       - name: Clean up old revisions
         if: success()
