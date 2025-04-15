@@ -14,7 +14,9 @@ from pathlib import Path
 import os
 import sys
 from datetime import timedelta
+from dotenv import load_dotenv
 
+load_dotenv()
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
@@ -37,6 +39,7 @@ LOCAL_APPS = [
     'site_app',
     'apps.users',
     'apps.emotions',
+    'apps.message',
 ]
 
 THIRD_APPS = [
@@ -159,3 +162,4 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 
+SECRET_KEY = os.getenv("SECRET_KEY")
