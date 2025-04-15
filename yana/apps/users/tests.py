@@ -23,6 +23,7 @@ class CustomUserModelTest(TestCase):
         self.assertFalse(self.user.is_admin)
         self.assertFalse(self.user.is_staff)
         self.assertIsNotNone(self.user.user_id)
+        self.assertEqual(self.user.avatar_id, 34)
 
     def test_superuser_creation(self):
         superuser = CustomUser.objects.create_superuser(
@@ -32,6 +33,7 @@ class CustomUserModelTest(TestCase):
         self.assertTrue(superuser.is_admin)
         self.assertTrue(superuser.is_staff)
         self.assertTrue(superuser.is_superuser)
+        self.assertEqual(superuser.avatar_id, 34)
 
 class UserViewTest(TestCase):
     def setUp(self):
@@ -59,7 +61,11 @@ class UserViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('access_token', response.data)
         self.assertIn('refresh_token', response.data)
+        self.assertIn('avatar_id', response.data)
+        self.assertEqual(response.data['avatar_id'], 34)
         self.assertEqual(CustomUser.objects.count(), 3)
+        new_user = CustomUser.objects.get(email='newuser@example.com')
+        self.assertEqual(new_user.avatar_id, 34)
 
     def test_login_user(self):
         url = reverse('login')
@@ -71,6 +77,12 @@ class UserViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('access', response.data)
         self.assertIn('refresh', response.data)
+        self.assertIn('user', response.data)
+        user_data = response.data['user']
+        self.assertEqual(user_data['email'], 'test@example.com')
+        self.assertEqual(user_data['user_id'], self.user.user_id)
+        self.assertEqual(user_data['name'], 'Test')
+        self.assertEqual(user_data['avatar_id'], 34)
 
     def test_get_users(self):
         self.client.force_authenticate(user=self.superuser)
