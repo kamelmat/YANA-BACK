@@ -41,4 +41,4 @@ ENV PYTHONUNBUFFERED=1 \
   PORT=8000 \
   PYTHONPATH=/app:/app/yana:/usr/local/lib/python3.11/site-packages
 
-CMD [ "/app/start.py"]
+CMD ["/app/start.py"]
