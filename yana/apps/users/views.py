@@ -38,6 +38,7 @@ class RegisterView(generics.CreateAPIView):
             "name": user.name,
             "last_name": user.last_name,
             "date_joined": user.date_joined,
+            "avatar_id": user.avatar_id,
             "access_token": access_token,
             "refresh_token": str(refresh),
         }
