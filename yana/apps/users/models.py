@@ -48,6 +48,7 @@ class CustomUser(AbstractBaseUser):
         null=True,
         blank=True
     )
+    avatar_id = models.IntegerField(default=34)
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
