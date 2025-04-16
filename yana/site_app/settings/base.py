@@ -152,8 +152,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 TEST_RUNNER = 'site_app.test_runner.CustomTestRunner'
 
 # CORS Settings
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    'http://35.202.7.31',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
