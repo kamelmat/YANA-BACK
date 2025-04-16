@@ -36,6 +36,7 @@ LOCAL_APPS = [
     'apps.users',
     'apps.emotions',
     'apps.message',
+    'apps.resources',
 ]
 
 THIRD_APPS = [
