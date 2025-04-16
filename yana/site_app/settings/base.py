@@ -14,15 +14,11 @@ from pathlib import Path
 import os
 import sys
 from datetime import timedelta
-from dotenv import load_dotenv
-
-load_dotenv()
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Application definition
 
@@ -160,6 +156,3 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-
-
-SECRET_KEY = os.getenv("SECRET_KEY")
