@@ -17,7 +17,10 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     '35.202.7.31',
-    'localhost',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://35.202.7.31',
 ]
 
 # Database
