@@ -13,7 +13,15 @@ load_dotenv(dotenv_path=BASE_DIR / ".env")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG = True
+DEBUG = False
+
+ALLOWED_HOSTS = [
+    '35.202.7.31',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://35.202.7.31',
+]
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
