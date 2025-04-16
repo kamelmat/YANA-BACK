@@ -13,10 +13,11 @@ load_dotenv(dotenv_path=BASE_DIR / ".env")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     '35.202.7.31',
+    '127.0.0.1'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
