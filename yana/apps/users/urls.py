@@ -15,4 +15,5 @@ urlpatterns = [
     path('api/users/<str:id>/', UserDetailView.as_view(), name='user-detail'),
     path('api/check-email/', EmailCheckView.as_view(), name='check-email'),
     path('api/delete-account/', DeleteAccountView.as_view(), name='delete-account'),
+    path('api/update-avatar/', UpdateAvatarView.as_view(), name='update-avatar'),
 ]
