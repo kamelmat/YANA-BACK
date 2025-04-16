@@ -12,7 +12,7 @@ from apps.users.serializers import *
 from apps.users.utils import generate_unique_user_id
 from django.shortcuts import get_object_or_404
 
-class UserAPIVew(APIView):
+class UserAPIView(APIView):
         
     def get(self, request):
         user = CustomUser.objects.all()
@@ -57,7 +57,18 @@ class GenerateUserIDView(APIView):
     
 class LoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
-    permission_classes = [AllowAny]
+    permission_classes = []
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+            print("🔥 Serializer errors:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+        
+    
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
