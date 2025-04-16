@@ -1,0 +1,116 @@
+name: GCP Production CI/CD Pipeline
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - main
+      - cicd/pipeline
+      - feat/cicd/pipeline
+  pull_request:
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: "training-batch-05"
+  DB_NAME: ${{ secrets.DB_NAME }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_PORT: ${{ secrets.DB_PORT }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Latest Release Version
+        id: get-version
+        run: |
+          LATEST_TAG=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/releases/latest | \
+            jq -r .tag_name)
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No releases found, defaulting to v0.0.0"
+            LATEST_TAG="v0.0.0"
+          fi
+          echo "version=$LATEST_TAG" >> $GITHUB_OUTPUT
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker us-east1-docker.pkg.dev
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push Docker Image to Artifact Registry
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:latest
+          # us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:${{ steps.get-version.outputs.version }}
+          cache-from: type=registry,ref=us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/buildcache
+          cache-to: type=registry,ref=us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/buildcache,mode=max
+
+  deploy-to-GCP:
+    runs-on: [self-hosted, linux, prod, GCP]
+    needs: build-and-push-image
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker us-east1-docker.pkg.dev --quiet
+      - name: Pull the latest image
+        run: |
+          docker pull us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:latest
+      - name: Stop and remove existing container
+        run: |
+          docker stop yana-back || true
+          docker rm yana-back || true
+      - name: Deploy to Cloud Run
+        run: |
+          docker run -d \
+            -p 8000:8000 \
+            -e PYTHONUNBUFFERED=1 \
+            -e PORT=8000 \
+            -e PYTHONPATH=/app:/app/yana:/usr/local/lib/python3.11/site-packages \
+            -e DATABASE_URL="postgresql://${{ env.DB_USER }}:${{ env.DB_PASSWORD }}@${{ env.DB_HOST }}:${{ env.DB_PORT }}/${{ env.DB_NAME }}" \
+            -e SECRET_KEY="${{ secrets.SECRET_KEY }}" \
+            -e DEBUG=false \
+            --name yana-back \
+            --restart=unless-stopped \
+            us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:latest
