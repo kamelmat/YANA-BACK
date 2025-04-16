@@ -23,13 +23,6 @@ CSRF_TRUSTED_ORIGINS = [
     'http://35.202.7.31',
 ]
 
-# Seguridad HTTPS (solo si tenés certificado SSL)
-SECURE_HSTS_SECONDS = 31536000
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 

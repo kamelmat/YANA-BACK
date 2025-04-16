@@ -10,7 +10,6 @@ on:
       - main
       - cicd/pipeline
       - feat/cicd/pipeline
-  pull_request:
   workflow_dispatch:
 
 env:
