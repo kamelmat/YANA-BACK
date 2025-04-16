@@ -2,9 +2,12 @@ FROM python:3.11.12-slim AS builder
 WORKDIR /app
 
 # Instalar dependencias del sistema necesarias para psycopg2
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  libpq-dev \
+RUN apt-get update && apt-get install -y \
   gcc \
+  libc-dev \
+  libpq-dev \
+  python3-dev \
+  && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
