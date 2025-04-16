@@ -23,5 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("usuario/", include("apps.users.urls")),
     path("emociones/", include("apps.emotions.urls")),
-    
+    path("mensajes/", include("apps.message.urls"))
 ] 
