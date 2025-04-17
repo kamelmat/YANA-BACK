@@ -18,12 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django_prometheus import exports
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("usuario/", include("apps.users.urls")),
     path("emociones/", include("apps.emotions.urls")),
     path("recursos/", include("apps.resources.urls")),
-    path("mensajes/", include("apps.message.urls"))
-
+    path("mensajes/", include("apps.message.urls")),
+    path('metrics/', exports.ExportToDjangoView, name='prometheus-django-metrics'),
 ] 
