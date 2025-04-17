@@ -52,6 +52,19 @@ class ReceivedSupportMessagesView(generics.ListAPIView):
 class NotificationsView(APIView):
     permission_classes = [IsAuthenticated]
 
+    # Verificar si el usuario tiene mensajes no leídos
+
     def get(self, request):
         user = request.user
         return Response(user.has_unread_messages, status=status.HTTP_200_OK)
+    
+class MessagesAsReadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    # Marcar los mensajes como leídos
+
+    def post(self, request):
+        user = request.user
+        user.has_unread_messages = False
+        user.save()
+        return Response(status=status.HTTP_200_OK)
