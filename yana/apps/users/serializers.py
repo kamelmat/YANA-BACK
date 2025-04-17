@@ -95,3 +95,6 @@ class DeleteAccountSerializer(serializers.Serializer):
         if not user.check_password(attrs['password']):
             raise serializers.ValidationError("Incorrect password")
         return attrs
+
+class UpdateAvatarSerializer(serializers.Serializer):
+    avatar_id = serializers.IntegerField(min_value=31, max_value=35)

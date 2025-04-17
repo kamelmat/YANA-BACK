@@ -116,3 +116,17 @@ class DeleteAccountView(APIView):
                 status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UpdateAvatarView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def put(self, request):
+        serializer = UpdateAvatarSerializer(data=request.data)
+        if serializer.is_valid():
+            request.user.avatar_id = serializer.validated_data['avatar_id']
+            request.user.save()
+            return Response(
+                {"message": "Avatar updated successfully", "avatar_id": request.user.avatar_id},
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
