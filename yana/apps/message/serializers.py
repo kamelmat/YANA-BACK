@@ -10,3 +10,8 @@ class SupportMessagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportMessage
         fields = ['template', 'created_at']
+
+class messageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupportMessageTemplate
+        fields = ["text"]

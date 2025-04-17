@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/received-messages/', ReceivedSupportMessagesView.as_view(), name='received-messages'),
     path('api/notifications/', NotificationsView.as_view(), name='notifications'),
     path("api/messageasread/", MessagesAsReadView.as_view(), name="message-as-read"),
+    path("api/admin/createmessage/", CreateMessageView.as_view(), name="create-message"),
 ]

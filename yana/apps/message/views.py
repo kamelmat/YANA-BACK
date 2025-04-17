@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, generics
 from .models import SupportMessageTemplate, SupportMessage
 from .serializers import *
+from .permissions import IsAdminUser
 
 class SupportTemplatesView(APIView):
     def get(self, request):
@@ -68,3 +69,11 @@ class MessagesAsReadView(APIView):
         user.has_unread_messages = False
         user.save()
         return Response(status=status.HTTP_200_OK)
+    
+
+class CreateMessageView(generics.CreateAPIView):
+    serializer_class = messageSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def perform_create(self, serializer):
+        serializer.save()
