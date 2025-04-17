@@ -1,0 +1,47 @@
+name: Semantic Release
+
+on:
+  push:
+    branches:
+      - main
+      # - cicd/pipeline
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Debug Repository State
+        run: |
+          echo "Listando releases:"
+          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/releases | jq .
+          echo "Listando tags:"
+          git tag -l
+          echo "Listando commits recientes:"
+          git log --oneline -n 10
+          echo "Listando commits en cicd/pipeline que siguen Conventional Commits:"
+          git log --oneline --grep='^(feat|fix|chore)(\(.+\))?!?: .+' cicd/pipeline
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: python
+          target-branch: cicd/pipeline
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - name: Debug Release Please Output
+        if: always()
+        run: |
+          echo "Release creado: ${{ steps.release.outputs.release_created }}"
+          echo "Nombre del tag: ${{ steps.release.outputs.tag_name }}"
+          echo "Todos los outputs:"
+          echo "${{ toJSON(steps.release.outputs) }}"
