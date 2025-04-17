@@ -37,6 +37,9 @@ class SendSupportMessageView(generics.CreateAPIView):
             template=template
         )
 
+        receiver.has_unread_messages = True
+        receiver.save()
+
         return Response({"message": "Mensaje de apoyo enviado"}, status=status.HTTP_201_CREATED)
     
 class ReceivedSupportMessagesView(generics.ListAPIView):
@@ -45,3 +48,10 @@ class ReceivedSupportMessagesView(generics.ListAPIView):
 
     def get_queryset(self):
          return SupportMessage.objects.filter(receiver=self.request.user).order_by('-created_at')
+    
+class NotificationsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        return Response(user.has_unread_messages, status=status.HTTP_200_OK)
