@@ -37,6 +37,7 @@ LOCAL_APPS = [
     'apps.emotions',
     'apps.message',
     'apps.resources',
+    'devtools',
 ]
 
 THIRD_APPS = [
