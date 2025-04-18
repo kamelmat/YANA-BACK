@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status, generics
 from .models import SupportMessageTemplate, SupportMessage
 from .serializers import *
@@ -49,6 +49,18 @@ class ReceivedSupportMessagesView(generics.ListAPIView):
     def get_queryset(self):
          return SupportMessage.objects.filter(receiver=self.request.user).order_by('-created_at')
     
+class CreateSupportTemplateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = SupportMessageTemplateSerializer
+    
+    def perform_create(self, serializer):
+        serializer.save()
+
+class DeleteSupportTemplateView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = SupportMessageTemplateSerializer
+    queryset = SupportMessageTemplate.objects.all()
+
 class NotificationsView(APIView):
     permission_classes = [IsAuthenticated]
 
