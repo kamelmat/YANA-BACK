@@ -49,6 +49,7 @@ class CustomUser(AbstractBaseUser):
         blank=True
     )
     avatar_id = models.IntegerField(default=34)
+    unread_messages = models.BooleanField(default=False)
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
