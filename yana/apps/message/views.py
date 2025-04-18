@@ -37,7 +37,7 @@ class SendSupportMessageView(generics.CreateAPIView):
             template=template
         )
 
-        receiver.has_unread_messages = True
+        receiver.unread_messages = True
         receiver.save()
 
         return Response({"message": "Mensaje de apoyo enviado"}, status=status.HTTP_201_CREATED)
@@ -68,7 +68,7 @@ class NotificationsView(APIView):
 
     def get(self, request):
         user = request.user
-        return Response(user.has_unread_messages, status=status.HTTP_200_OK)
+        return Response(user.unread_messages, status=status.HTTP_200_OK)
     
 class MessagesAsReadView(APIView):
     permission_classes = [IsAuthenticated]
@@ -77,6 +77,6 @@ class MessagesAsReadView(APIView):
 
     def post(self, request):
         user = request.user
-        user.has_unread_messages = False
+        user.unread_messages = False
         user.save()
         return Response(status=status.HTTP_200_OK)
