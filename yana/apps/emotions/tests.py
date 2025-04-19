@@ -169,13 +169,28 @@ class NearbyEmotionsViewTest(TestCase):
             name="Test",
             last_name="User"
         )
+        self.other_user = User.objects.create_user(
+            email="other@example.com",
+            password="testpass123",
+            name="Other",
+            last_name="User"
+        )
         self.emotion = Emotion.objects.create(name="Happy")
-        self.shared_emotion = SharedEmotion.objects.create(
+        self.other_emotion = Emotion.objects.create(name="Sad")
+        
+        self.user_emotion = SharedEmotion.objects.create(
             user=self.user,
             emotion=self.emotion,
             latitude=40.7128,
             longitude=-74.0060
         )
+        self.other_user_emotion = SharedEmotion.objects.create(
+            user=self.other_user,
+            emotion=self.other_emotion,
+            latitude=40.7128,
+            longitude=-74.0060
+        )
+        
         self.url = reverse('nearby_emotions')
 
     def test_get_nearby_emotions(self):
@@ -185,10 +200,18 @@ class NearbyEmotionsViewTest(TestCase):
             'radius': 1
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['emotion'], 'Happy')
-        self.assertEqual(response.data[0]['latitude'], 40.7128)
-        self.assertEqual(response.data[0]['longitude'], -74.0060)
+        self.assertEqual(len(response.data), 2)  # Should see both emotions when not authenticated
+
+    def test_get_nearby_emotions_exclude_own(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.url, {
+            'latitude': 40.7128,
+            'longitude': -74.0060,
+            'radius': 1
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)  # Should only see other user's emotion
+        self.assertEqual(response.data[0]['emotion'], 'Sad')  # Should be other user's emotion
 
     def test_get_nearby_emotions_invalid_params(self):
         response = self.client.get(self.url, {
