@@ -27,6 +27,7 @@ The command will create users with:
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 import random
+import re
 
 class Command(BaseCommand):
     help = 'Creates test users with a specific email pattern'
@@ -45,6 +46,23 @@ class Command(BaseCommand):
             help='Email pattern to use for test users (default: testing_frontend)'
         )
 
+    def get_next_number(self, email_pattern):
+        """Find the highest number used for the given pattern and return the next number"""
+        User = get_user_model()
+        existing_users = User.objects.filter(email__startswith=f"{email_pattern}_")
+        
+        if not existing_users.exists():
+            return 1
+            
+        # Extract numbers from existing emails
+        numbers = []
+        for user in existing_users:
+            match = re.search(rf"{email_pattern}_(\d+)@", user.email)
+            if match:
+                numbers.append(int(match.group(1)))
+                
+        return max(numbers) + 1 if numbers else 1
+
     def handle(self, *args, **options):
         count = options['count']
         email_pattern = options['email_pattern']
@@ -53,13 +71,37 @@ class Command(BaseCommand):
         first_names = ['John', 'Jane']
         last_names = ['Smith', 'Doe']
 
+        # Get the starting number
+        start_number = self.get_next_number(email_pattern)
+        
+        # Check if we have enough available numbers for the requested count
+        existing_users = User.objects.filter(email__startswith=f"{email_pattern}_")
+        if existing_users.exists():
+            # Get the highest number used
+            numbers = []
+            for user in existing_users:
+                match = re.search(rf"{email_pattern}_(\d+)@", user.email)
+                if match:
+                    numbers.append(int(match.group(1)))
+            highest_number = max(numbers) if numbers else 0
+            
+            # Check if we have enough available numbers
+            if highest_number + count > 999:  # Arbitrary limit to prevent too many users
+                raise Exception(f"Cannot create {count} users - would exceed maximum number limit")
+            
+            # Check if any of the emails we want to create already exist
+            for i in range(count):
+                email = f"{email_pattern}_{start_number + i}@example.com"
+                if User.objects.filter(email=email).exists():
+                    raise Exception(f"User with email {email} already exists")
+        
         created_count = 0
         for i in range(count):
             try:
                 # Generate random user data
                 first_name = random.choice(first_names)
                 last_name = random.choice(last_names)
-                email = f"{email_pattern}_{i+1}@example.com"
+                email = f"{email_pattern}_{start_number + i}@example.com"
                 password = "testpass123"  # Same password for all test users
 
                 # Create user
@@ -81,6 +123,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'Error creating user: {str(e)}')
                 )
+                raise  # Re-raise the exception to stop the command
 
         self.stdout.write(
             self.style.SUCCESS(
