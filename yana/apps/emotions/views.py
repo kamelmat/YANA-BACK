@@ -100,3 +100,21 @@ class GlobalEmotionsSummaryView(APIView):
 
             result = {item['emotion__name']: item['count'] for item in emotion_counts}
             return Response(result)
+
+class LastUserEmotionView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        last_emotion = SharedEmotion.objects.filter(
+            user=request.user,
+            is_active=True
+        ).order_by('-created_at').first()
+        
+        if not last_emotion:
+            return Response(
+                {'detail': 'No emotions found for this user'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        serializer = SharedEmotionSerializer(last_emotion)
+        return Response(serializer.data)
