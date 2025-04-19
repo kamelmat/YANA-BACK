@@ -4,7 +4,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from .models import Emotion, SharedEmotion
-from datetime import datetime
+from datetime import datetime, timedelta
 
 User = get_user_model()
 
@@ -205,3 +205,74 @@ class NearbyEmotionsViewTest(TestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
+
+class LastUserEmotionViewTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            email="test@example.com",
+            password="testpass123",
+            name="Test",
+            last_name="User"
+        )
+        self.other_user = User.objects.create_user(
+            email="other@example.com",
+            password="testpass123",
+            name="Other",
+            last_name="User"
+        )
+        self.emotion1 = Emotion.objects.create(name="Happy")
+        self.emotion2 = Emotion.objects.create(name="Sad")
+        
+        self.shared_emotion1 = SharedEmotion.objects.create(
+            user=self.user,
+            emotion=self.emotion1,
+            latitude=40.7128,
+            longitude=-74.0060,
+            created_at=datetime.now() - timedelta(days=2)
+        )
+        self.shared_emotion2 = SharedEmotion.objects.create(
+            user=self.user,
+            emotion=self.emotion2,
+            latitude=40.7128,
+            longitude=-74.0060,
+            created_at=datetime.now() - timedelta(days=1)
+        )
+        
+        self.other_shared_emotion = SharedEmotion.objects.create(
+            user=self.other_user,
+            emotion=self.emotion1,
+            latitude=40.7128,
+            longitude=-74.0060
+        )
+        
+        self.url = reverse('user-last-emotion')
+
+    def test_get_last_emotion_authenticated(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['emotion'], 'Sad')
+        self.assertEqual(response.data['latitude'], 40.7128)
+        self.assertEqual(response.data['longitude'], -74.0060)
+
+    def test_get_last_emotion_unauthenticated(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_last_emotion_no_emotions(self):
+        SharedEmotion.objects.filter(user=self.user).delete()
+        
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'No emotions found for this user')
+
+    def test_get_last_emotion_only_active(self):
+        self.shared_emotion2.is_active = False
+        self.shared_emotion2.save()
+        
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['emotion'], 'Happy')
