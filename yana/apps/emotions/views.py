@@ -76,7 +76,12 @@ class NearbyEmotionsView(APIView):
             return R * (2 * math.atan2(math.sqrt(a), math.sqrt(1 - a)))
 
         nearby = []
-        for se in SharedEmotion.objects.select_related('emotion').filter(is_active=True):
+        # Exclude the requesting user's emotions
+        shared_emotions = SharedEmotion.objects.select_related('emotion').filter(
+            is_active=True
+        ).exclude(user=request.user) if request.user.is_authenticated else SharedEmotion.objects.select_related('emotion').filter(is_active=True)
+        
+        for se in shared_emotions:
             distance = haversine(lat, lon, se.latitude, se.longitude)
             if distance <= radius_km:
                 nearby.append({
