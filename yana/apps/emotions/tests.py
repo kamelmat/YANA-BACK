@@ -5,6 +5,7 @@ from rest_framework import status
 from django.contrib.auth import get_user_model
 from .models import Emotion, SharedEmotion
 from datetime import datetime, timedelta
+import time
 
 User = get_user_model()
 
@@ -175,20 +176,42 @@ class NearbyEmotionsViewTest(TestCase):
             name="Other",
             last_name="User"
         )
-        self.emotion = Emotion.objects.create(name="Happy")
-        self.other_emotion = Emotion.objects.create(name="Sad")
+        self.emotion1 = Emotion.objects.create(name="Happy")
+        self.emotion2 = Emotion.objects.create(name="Sad")
+        self.emotion3 = Emotion.objects.create(name="Angry")
         
-        self.user_emotion = SharedEmotion.objects.create(
-            user=self.user,
-            emotion=self.emotion,
-            latitude=40.7128,
-            longitude=-74.0060
-        )
-        self.other_user_emotion = SharedEmotion.objects.create(
+        # Create emotions with explicit timestamps, ensuring Sad is most recent for other_user
+        now = datetime.now()
+        self.other_user_emotion1 = SharedEmotion.objects.create(
             user=self.other_user,
-            emotion=self.other_emotion,
+            emotion=self.emotion1,
             latitude=40.7128,
-            longitude=-74.0060
+            longitude=-74.0060,
+            created_at=now - timedelta(days=2)
+        )
+        time.sleep(0.1)  # Small delay to ensure different timestamps
+        self.other_user_emotion2 = SharedEmotion.objects.create(
+            user=self.other_user,
+            emotion=self.emotion2,
+            latitude=40.7128,
+            longitude=-74.0060,
+            created_at=now - timedelta(hours=1)  # More recent than emotion1
+        )
+        
+        # Create an emotion for a third user
+        self.third_user = User.objects.create_user(
+            email="third@example.com",
+            password="testpass123",
+            name="Third",
+            last_name="User"
+        )
+        time.sleep(0.1)  # Small delay to ensure different timestamps
+        self.third_user_emotion = SharedEmotion.objects.create(
+            user=self.third_user,
+            emotion=self.emotion3,
+            latitude=40.7128,
+            longitude=-74.0060,
+            created_at=now
         )
         
         self.url = reverse('nearby_emotions')
@@ -200,9 +223,22 @@ class NearbyEmotionsViewTest(TestCase):
             'radius': 1
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)  # Should see both emotions when not authenticated
+        self.assertEqual(len(response.data), 2)  # Should see one emotion per user
+        emotions = [item['emotion'] for item in response.data]
+        self.assertIn('Sad', emotions)  # Most recent emotion of other_user
+        self.assertIn('Angry', emotions)  # Emotion of third_user
 
     def test_get_nearby_emotions_exclude_own(self):
+        # Create an emotion for the authenticated user
+        time.sleep(0.1)  # Small delay to ensure different timestamps
+        self.user_emotion = SharedEmotion.objects.create(
+            user=self.user,
+            emotion=self.emotion1,
+            latitude=40.7128,
+            longitude=-74.0060,
+            created_at=datetime.now()
+        )
+        
         self.client.force_authenticate(user=self.user)
         response = self.client.get(self.url, {
             'latitude': 40.7128,
@@ -210,8 +246,11 @@ class NearbyEmotionsViewTest(TestCase):
             'radius': 1
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Should only see other user's emotion
-        self.assertEqual(response.data[0]['emotion'], 'Sad')  # Should be other user's emotion
+        self.assertEqual(len(response.data), 2)  # Should see one emotion per other user
+        emotions = [item['emotion'] for item in response.data]
+        self.assertIn('Sad', emotions)  # Most recent emotion of other_user
+        self.assertIn('Angry', emotions)  # Emotion of third_user
+        self.assertNotIn('Happy', emotions)  # Should not see user's own emotion
 
     def test_get_nearby_emotions_invalid_params(self):
         response = self.client.get(self.url, {
@@ -247,26 +286,31 @@ class LastUserEmotionViewTest(TestCase):
         self.emotion1 = Emotion.objects.create(name="Happy")
         self.emotion2 = Emotion.objects.create(name="Sad")
         
+        # Create emotions with explicit timestamps, ensuring Sad is more recent
+        now = datetime.now()
         self.shared_emotion1 = SharedEmotion.objects.create(
             user=self.user,
             emotion=self.emotion1,
             latitude=40.7128,
             longitude=-74.0060,
-            created_at=datetime.now() - timedelta(days=2)
+            created_at=now - timedelta(days=2)
         )
+        # Force the second emotion to be created after the first one
+        time.sleep(0.1)  # Small delay to ensure different timestamps
         self.shared_emotion2 = SharedEmotion.objects.create(
             user=self.user,
             emotion=self.emotion2,
             latitude=40.7128,
             longitude=-74.0060,
-            created_at=datetime.now() - timedelta(days=1)
+            created_at=now - timedelta(hours=1)  # More recent than emotion1
         )
         
         self.other_shared_emotion = SharedEmotion.objects.create(
             user=self.other_user,
             emotion=self.emotion1,
             latitude=40.7128,
-            longitude=-74.0060
+            longitude=-74.0060,
+            created_at=now
         )
         
         self.url = reverse('user-last-emotion')
