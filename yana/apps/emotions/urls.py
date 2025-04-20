@@ -14,6 +14,8 @@ urlpatterns = [
     path('user/emotions/create/', UserCreateEmotionView.as_view(), name='user-create-emotion'),
     path('user/emotions/', SharedEmotionListView.as_view(), name='user-emotion-list'),
     
+    path('user/emotions/last/', LastUserEmotionView.as_view(), name='user-last-emotion'),
+    
     #emociones cercanas
     path('api/nearby-emotions/', NearbyEmotionsView.as_view(), name='nearby_emotions'),
     path('api/global-emotions/', GlobalEmotionsSummaryView.as_view(), name='global-emotions-summary'),
