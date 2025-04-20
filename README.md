@@ -1,6 +1,6 @@
 [![GCP Production CI/CD Pipeline](https://github.com/IgrowkerTraining/i005-yana-back/actions/workflows/backend.yaml/badge.svg)](https://github.com/IgrowkerTraining/i005-yana-back/actions/workflows/backend.yaml)
 
-# Yana-Back Setup
+# Yana Backend
 
 This guide explains how to set up the development environment for the `yana-back` Django application, configure a pre-commit hook to enforce standardized commit messages, run the server locally, and use Docker to containerize the application.
 
