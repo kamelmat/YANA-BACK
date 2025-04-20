@@ -16,12 +16,13 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '35.202.7.31',
-    '127.0.0.1'
+    '35.194.60.34',
+    '127.0.0.1',
+    'localhost',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://35.202.7.31',
+    'http://35.194.60.34',
 ]
 
 # Database
