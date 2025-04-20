@@ -64,35 +64,20 @@ Define the hook in a configuration file to integrate with `pre-commit`.
 ## 3. Install and Test the Hook
 
 ### 3.1 Install the Hook
-Install the pre-commit hook to validate commit messages automatically.
+- **Install the pre-commit hook to validate commit messages automatically**:
 
 ```bash
 pre-commit install --hook-type commit-msg
 ```
 
-**Verification**: Confirm the hook is installed:
-```bash
-ls -l .git/hooks/ | grep commit-msg
-```
-You should see a `commit-msg` file created by `pre-commit`.
-
 ### 3.2 Test the Hook
 Test the hook to ensure it enforces the correct format.
 
-- **Manual Test**:
-  ```bash
-  pre-commit run --hook-stage commit-msg --commit-msg "feat: test commit"
-  ```
-  This should pass. Test an invalid message:
-  ```bash
-  pre-commit run --hook-stage commit-msg --commit-msg "invalid commit"
-  ```
-
-- **Real Commit Test**:
+- **Commit Test**:
   ```bash
   git commit -m "feat: add test file"
   ```
-  Try an invalid message:
+- **Try an invalid message**:
   ```bash
   git commit -m "bad message"
   ```
@@ -147,7 +132,7 @@ The `Dockerfile` is a script that builds a Docker image for the Django app.
   docker build -t yana-back .
 
   # Run the container with the .env file
-  docker run --env-file .env -p 8000:8000 yana-back
+  docker run -dp 8000:8000 --env-file .env yana-back
   ```
   Access the app at `http://localhost:8000`.
 
