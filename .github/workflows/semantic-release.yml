@@ -9,6 +9,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 jobs:
   release-please:
@@ -29,6 +30,7 @@ jobs:
           git log --oneline -n 10
           echo "Listando commits en cicd/pipeline que siguen Conventional Commits:"
           git log --oneline --grep='^(feat|fix|chore)(\(.+\))?!?: .+' cicd/pipeline
+
       - uses: googleapis/release-please-action@v4
         id: release
         with:
