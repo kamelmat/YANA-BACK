@@ -1,3 +1,5 @@
+[![GCP Production CI/CD Pipeline](https://github.com/IgrowkerTraining/i005-yana-back/actions/workflows/backend.yaml/badge.svg)](https://github.com/IgrowkerTraining/i005-yana-back/actions/workflows/backend.yaml)
+
 ## **Requisitos Previos**  
 - Python 3.7+ instalado.  
 - Git instalado y configurado.  
@@ -18,7 +20,7 @@ venv\Scripts\activate
 # Activar entorno en Linux
 source venv/Scripts/activate
 
-# Instalar pre-commit** 
+# Instalar pre-commit
 pip install pre-commit
 ```
 
