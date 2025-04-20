@@ -8,6 +8,7 @@ from rest_framework.response import Response
 import math
 from .permissions import IsAdminUser
 from django.db.models import Count
+from django.db import models
 
 #emociones que gestionamos desde el admin:
 class EmotionListView(generics.ListAPIView):
@@ -75,8 +76,33 @@ class NearbyEmotionsView(APIView):
                 math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
             return R * (2 * math.atan2(math.sqrt(a), math.sqrt(1 - a)))
 
+        # Get the user's last emotion if authenticated
+        user_last_emotion = None
+        if request.user.is_authenticated:
+            last_emotion = SharedEmotion.objects.filter(
+                user=request.user,
+                is_active=True
+            ).order_by('-created_at').first()
+            if last_emotion:
+                user_last_emotion = last_emotion.emotion
+
+        # Get the most recent active emotion for each user
+        shared_emotions = SharedEmotion.objects.select_related('emotion').filter(
+            is_active=True
+        ).exclude(user=request.user) if request.user.is_authenticated else SharedEmotion.objects.select_related('emotion').filter(is_active=True)
+        
+        # If user has a last emotion, filter to only show matching emotions
+        if user_last_emotion:
+            shared_emotions = shared_emotions.filter(emotion=user_last_emotion)
+        
+        # Get the most recent emotion for each user
+        latest_emotions = {}
+        for se in shared_emotions.order_by('-created_at'):
+            if se.user_id not in latest_emotions:
+                latest_emotions[se.user_id] = se
+        
         nearby = []
-        for se in SharedEmotion.objects.select_related('emotion').filter(is_active=True):
+        for se in latest_emotions.values():
             distance = haversine(lat, lon, se.latitude, se.longitude)
             if distance <= radius_km:
                 nearby.append({
@@ -100,3 +126,21 @@ class GlobalEmotionsSummaryView(APIView):
 
             result = {item['emotion__name']: item['count'] for item in emotion_counts}
             return Response(result)
+
+class LastUserEmotionView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        last_emotion = SharedEmotion.objects.filter(
+            user=request.user,
+            is_active=True
+        ).order_by('-created_at').first()
+        
+        if not last_emotion:
+            return Response(
+                {'detail': 'No emotions found for this user'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        serializer = SharedEmotionSerializer(last_emotion)
+        return Response(serializer.data)
