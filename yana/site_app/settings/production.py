@@ -19,6 +19,9 @@ ALLOWED_HOSTS = [
     '35.194.60.34'
 ]
 
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'static'
+
 CSRF_TRUSTED_ORIGINS = [
     'http://35.194.60.34',
 ]
