@@ -112,5 +112,4 @@ jobs:
             us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:latest
 
       - name: Clean up unused Docker images
-        run: |
-          docker image prune -f
+        run: docker image prune -f
