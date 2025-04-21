@@ -118,7 +118,7 @@ The `Dockerfile` is a script that builds a Docker image for the Django app.
   SECRET_KEY=
   ```
   To configure the app:
-  1. Copy `.env.example` to a new file named `.env`:
+  1. Copy `.env.example` to a new file named `.env` (Linux/macOS):
      ```bash
      cp .env.example .env
      ```
@@ -151,3 +151,9 @@ The `.dockerignore` file lists files and folders to exclude from the Docker imag
   - Reduces image size.
   - Improves build speed.
   - Prevents sensitive files from being included.
+
+### 5. Additional Documentation
+In addition to this `README`, make sure to review the following important documentation for a complete understanding of the project setup and workflows:
+
+  - .github/workflows/README.md: Details the CI/CD pipeline configuration and workflows for automated testing and deployment.
+  - .github/scripts/README.md: Explains the purpose and usage of scripts used in the project, including the commit message validation script.
