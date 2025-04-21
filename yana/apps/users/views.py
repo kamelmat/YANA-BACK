@@ -1,7 +1,7 @@
 from rest_framework import generics,status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.forms import UserCreationForm
@@ -13,7 +13,7 @@ from apps.users.utils import generate_unique_user_id
 from django.shortcuts import get_object_or_404
 
 class UserAPIView(APIView):
-        
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def get(self, request):
         user = CustomUser.objects.all()
         user_serializer = UserSerializer(user, many = True)
@@ -82,9 +82,8 @@ class LogoutView(APIView):
 class UserDetailView(APIView):
     permission_classes = [IsAuthenticated]
     
-    def get(self, request, id):
-        user = get_object_or_404(CustomUser, id=id)
-        serializer = UserSerializer(user)
+    def get(self, request):
+        serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
 class EmailCheckView(APIView):
