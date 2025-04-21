@@ -19,9 +19,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '35.194.60.34',
-    '127.0.0.1',
-    'localhost',
+    '35.194.60.34'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -30,8 +28,6 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://yana_user:training2025@35.198.10.98:5432/igrowkerAbril2025')
 
 # Parse the database URL
 db_url = urlparse(DATABASE_URL)
