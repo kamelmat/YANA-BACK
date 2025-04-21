@@ -29,6 +29,8 @@ CSRF_TRUSTED_ORIGINS = [
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+DATABASE_URL = os.getenv('DATABASE_URL', '')
+
 # Parse the database URL
 db_url = urlparse(DATABASE_URL)
 
