@@ -77,7 +77,7 @@ The following global environment variables are defined at the pipeline level:
   3. **Authenticate to Google Cloud**:
      - **Action**: `google-github-actions/auth@v2`
      - **Configuration**:
-       - `credentials_json`: Uses the `GCP_SA_KEY` secret, which contains the service account key for authentication.
+       - `credentials_json`: Uses the `GCP_SA_KEY` secret, which contains the Service Account key for authentication.
      - **Description**: Authenticates the runner with Google Cloud, enabling access to GCS and other GCP services.
   4. **Upload to GCS Bucket**:
      - **Command**:
@@ -94,12 +94,12 @@ The following global environment variables are defined at the pipeline level:
 
 ## Secrets
 The pipeline relies on the following GitHub secret:
-- `GCP_SA_KEY`: A JSON key for a Google Cloud service account with permissions to write to the specified GCS bucket and (if enabled) invalidate Cloud CDN caches.
+- `GCP_SA_KEY`: A JSON key for a Google Cloud Service Account with permissions to write to the specified GCS bucket and (if enabled) invalidate Cloud CDN caches.
 
 ## Prerequisites
 - A Vite-based React project with a `build` script that generates static assets in the `dist` directory.
 - A Google Cloud project (`training-batch-05`) with a GCS bucket (`gs://yana-front`) configured for static website hosting.
-- A Google Cloud service account with appropriate permissions and its key stored as a GitHub secret (`GCP_SA_KEY`).
+- A Google Cloud Service Account with appropriate permissions and its key stored as a GitHub secret (`GCP_SA_KEY`).
 - Node.js version `20.x` compatible with the project dependencies.
 
 ## Usage
@@ -115,5 +115,5 @@ The pipeline relies on the following GitHub secret:
 
 ## Troubleshooting
 - **Build Failures**: Check the `npm run build` logs for errors related to code or dependencies. Ensure `package-lock.json` is up-to-date.
-- **Deployment Failures**: Verify the `GCP_SA_KEY` secret is valid and the service account has write access to the GCS bucket.
+- **Deployment Failures**: Verify the `GCP_SA_KEY` secret is valid and the Service Account has write access to the GCS bucket.
 - **Caching Issues**: If users see outdated content, ensure `index.html` is set to `no-cache` and consider enabling the CDN cache invalidation step.

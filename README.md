@@ -64,35 +64,20 @@ Define the hook in a configuration file to integrate with `pre-commit`.
 ## 3. Install and Test the Hook
 
 ### 3.1 Install the Hook
-Install the pre-commit hook to validate commit messages automatically.
+- **Install the pre-commit hook to validate commit messages automatically**:
 
 ```bash
 pre-commit install --hook-type commit-msg
 ```
 
-**Verification**: Confirm the hook is installed:
-```bash
-ls -l .git/hooks/ | grep commit-msg
-```
-You should see a `commit-msg` file created by `pre-commit`.
-
 ### 3.2 Test the Hook
 Test the hook to ensure it enforces the correct format.
 
-- **Manual Test**:
-  ```bash
-  pre-commit run --hook-stage commit-msg --commit-msg "feat: test commit"
-  ```
-  This should pass. Test an invalid message:
-  ```bash
-  pre-commit run --hook-stage commit-msg --commit-msg "invalid commit"
-  ```
-
-- **Real Commit Test**:
+- **Commit Test**:
   ```bash
   git commit -m "feat: add test file"
   ```
-  Try an invalid message:
+- **Try an invalid message**:
   ```bash
   git commit -m "bad message"
   ```
@@ -133,7 +118,7 @@ The `Dockerfile` is a script that builds a Docker image for the Django app.
   SECRET_KEY=
   ```
   To configure the app:
-  1. Copy `.env.example` to a new file named `.env`:
+  1. Copy `.env.example` to a new file named `.env` (Linux/macOS):
      ```bash
      cp .env.example .env
      ```
@@ -147,7 +132,7 @@ The `Dockerfile` is a script that builds a Docker image for the Django app.
   docker build -t yana-back .
 
   # Run the container with the .env file
-  docker run --env-file .env -p 8000:8000 yana-back
+  docker run -dp 8000:8000 --env-file .env yana-back
   ```
   Access the app at `http://localhost:8000`.
 
@@ -166,3 +151,9 @@ The `.dockerignore` file lists files and folders to exclude from the Docker imag
   - Reduces image size.
   - Improves build speed.
   - Prevents sensitive files from being included.
+
+### 5. Additional Documentation
+In addition to this `README`, make sure to review the following important documentation for a complete understanding of the project setup and workflows:
+
+  - .github/workflows/README.md: Details the CI/CD pipeline configuration and workflows for automated testing and deployment.
+  - .github/scripts/README.md: Explains the purpose and usage of scripts used in the project, including the commit message validation script.
