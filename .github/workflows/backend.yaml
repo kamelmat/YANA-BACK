@@ -27,17 +27,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get Latest Release Version
-        id: get-version
-        run: |
-          LATEST_TAG=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/releases/latest | \
-            jq -r .tag_name)
-          if [ -z "$LATEST_TAG" ]; then
-            echo "No releases found, defaulting to v0.0.0"
-            LATEST_TAG="v0.0.0"
-          fi
-          echo "version=$LATEST_TAG" >> $GITHUB_OUTPUT
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -100,9 +89,9 @@ jobs:
       - name: Deploy to Cloud Run
         run: |
           docker run -d \
-            -p 80:8000 \
+            -p 8000:8000 \
             -e PYTHONUNBUFFERED=1 \
-            -e PORT=80 \
+            -e PORT=8000 \
             -e PYTHONPATH=/app:/app/yana:/usr/local/lib/python3.11/site-packages \
             -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
             -e SECRET_KEY="${{ secrets.SECRET_KEY }}" \

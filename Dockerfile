@@ -45,7 +45,7 @@ COPY --from=builder /app/yana /app/yana
 COPY --from=builder /app/start.py /app/start.py
 
 ENV PYTHONUNBUFFERED=1 \
-  PORT=80 \
+  PORT=8000 \
   PYTHONPATH=/app:/app/yana:/usr/local/lib/python3.11/site-packages
 
 CMD ["/app/start.py"]
