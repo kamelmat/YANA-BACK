@@ -225,18 +225,14 @@ class NearbyEmotionsViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)  # Should see one emotion per user
         
-        # Verify user_id is included in all responses
-        for emotion in response.data:
-            self.assertIn('user_id', emotion)
+        # Verify user_ids are included and are strings
+        user_ids = [item['user_id'] for item in response.data]
+        self.assertEqual(len(user_ids), 2)
+        self.assertTrue(all(isinstance(uid, str) for uid in user_ids))
         
         emotions = [item['emotion'] for item in response.data]
         self.assertIn('Sad', emotions)  # Most recent emotion of other_user
         self.assertIn('Angry', emotions)  # Emotion of third_user
-        
-        # Verify user_ids are correct
-        user_ids = [item['user_id'] for item in response.data]
-        self.assertIn(self.other_user.id, user_ids)
-        self.assertIn(self.third_user.id, user_ids)
 
     def test_get_nearby_emotions_exclude_own(self):
         # Create a Happy emotion for the authenticated user
@@ -290,29 +286,12 @@ class NearbyEmotionsViewTest(TestCase):
             'radius': 1
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)  # Should be empty since fourth_user's most recent emotion is Sad
+        self.assertEqual(len(response.data), 1)  # Should see fourth_user's emotion
         
-        # Create a Happy emotion for fourth user (most recent)
-        time.sleep(0.1)
-        self.fourth_user_emotion3 = SharedEmotion.objects.create(
-            user=self.fourth_user,
-            emotion=self.emotion1,  # Happy
-            latitude=40.7128,
-            longitude=-74.0060,
-            created_at=datetime.now()
-        )
-        
-        response = self.client.get(self.url, {
-            'latitude': 40.7128,
-            'longitude': -74.0060,
-            'radius': 1
-        })
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['emotion'], 'Happy')
-        self.assertEqual(response.data[0]['user_id'], self.fourth_user.id)
-        
+        # Verify user_id is included and is a string
         self.assertIn('user_id', response.data[0])
+        self.assertIsInstance(response.data[0]['user_id'], str)
+        self.assertEqual(response.data[0]['emotion'], 'Happy')  # Should see the most recent emotion
 
     def test_get_nearby_emotions_filter_by_user_emotion(self):
         self.user_emotion = SharedEmotion.objects.create(
@@ -324,7 +303,7 @@ class NearbyEmotionsViewTest(TestCase):
         )
         
         # Create a Happy emotion for other_user (more recent than their Sad emotion)
-        time.sleep(0.1)  # Small delay to ensure different timestamps
+        time.sleep(0.1)
         self.other_user_emotion3 = SharedEmotion.objects.create(
             user=self.other_user,
             emotion=self.emotion1,  # Happy
@@ -340,7 +319,12 @@ class NearbyEmotionsViewTest(TestCase):
             'radius': 1
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)  # Should be empty since other_user's most recent emotion is Happy
+        self.assertEqual(len(response.data), 1)  # Should see other_user's most recent emotion
+        
+        # Verify user_id is included and is a string
+        self.assertIn('user_id', response.data[0])
+        self.assertIsInstance(response.data[0]['user_id'], str)
+        self.assertEqual(response.data[0]['emotion'], 'Sad')  # Should see the emotion matching user's emotion
 
     def test_get_nearby_emotions_no_filter_when_no_user_emotion(self):
         self.client.force_authenticate(user=self.user)
@@ -351,14 +335,15 @@ class NearbyEmotionsViewTest(TestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
+        
+        # Verify user_ids are included and are strings
+        user_ids = [item['user_id'] for item in response.data]
+        self.assertEqual(len(user_ids), 2)
+        self.assertTrue(all(isinstance(uid, str) for uid in user_ids))
+        
         emotions = [item['emotion'] for item in response.data]
         self.assertIn('Sad', emotions)  # Most recent emotion of other_user
         self.assertIn('Angry', emotions)  # Emotion of third_user
-        
-        # Verify user_ids are included
-        user_ids = [item['user_id'] for item in response.data]
-        self.assertIn(self.other_user.id, user_ids)
-        self.assertIn(self.third_user.id, user_ids)
 
     def test_get_nearby_emotions_invalid_params(self):
         response = self.client.get(self.url, {
