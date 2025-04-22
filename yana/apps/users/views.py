@@ -11,6 +11,16 @@ from apps.users.models import *
 from apps.users.serializers import *
 from apps.users.utils import generate_unique_user_id
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.views import PasswordResetView as DjangoPasswordResetView
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django.utils.decorators import method_decorator
+from django.http import JsonResponse
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import send_mail
+from django.conf import settings
+from rest_framework.decorators import api_view, permission_classes
 
 class UserAPIView(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
@@ -129,3 +139,75 @@ class UpdateAvatarView(APIView):
                 status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class CustomPasswordResetView(DjangoPasswordResetView):
+    template_name = 'password_reset.html'
+    email_template_name = 'password_reset_email.html'
+    subject_template_name = 'password_reset_subject.txt'
+    success_url = '/password-reset/done/'
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        return JsonResponse({'errors': form.errors}, status=400)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def password_reset_request(request):
+    serializer = PasswordResetSerializer(data=request.data)
+    if serializer.is_valid():
+        email = serializer.validated_data['email']
+        try:
+            user = CustomUser.objects.get(email=email)
+
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            reset_url = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}"
+            
+            subject = 'Password Reset Request'
+            message = f'Please click the following link to reset your password: {reset_url}'
+            from_email = settings.DEFAULT_FROM_EMAIL
+            recipient_list = [email]
+            
+            send_mail(subject, message, from_email, recipient_list)
+            
+            return Response(
+                {"message": "Password reset email has been sent."},
+                status=status.HTTP_200_OK
+            )
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "User with this email does not exist."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def password_reset_confirm(request):
+    serializer = PasswordResetConfirmSerializer(data=request.data)
+    if serializer.is_valid():
+        try:
+            uid = force_str(urlsafe_base64_decode(serializer.validated_data['uidb64']))
+            user = CustomUser.objects.get(pk=uid)
+            
+            if default_token_generator.check_token(user, serializer.validated_data['token']):
+                user.set_password(serializer.validated_data['new_password'])
+                user.save()
+                return Response(
+                    {"message": "Password has been reset successfully."},
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                {"error": "Invalid token."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+            return Response(
+                {"error": "Invalid reset link."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
