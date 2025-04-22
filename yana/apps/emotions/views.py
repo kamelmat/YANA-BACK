@@ -76,7 +76,6 @@ class NearbyEmotionsView(APIView):
                 math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
             return R * (2 * math.atan2(math.sqrt(a), math.sqrt(1 - a)))
 
-        # Get the user's last emotion if authenticated
         user_last_emotion = None
         if request.user.is_authenticated:
             last_emotion = SharedEmotion.objects.filter(
@@ -86,20 +85,15 @@ class NearbyEmotionsView(APIView):
             if last_emotion:
                 user_last_emotion = last_emotion.emotion
 
-        # Get the most recent active emotion for each user
         shared_emotions = SharedEmotion.objects.select_related('emotion').filter(
             is_active=True
         ).exclude(user=request.user) if request.user.is_authenticated else SharedEmotion.objects.select_related('emotion').filter(is_active=True)
         
-        # If user has a last emotion, filter to only show matching emotions
-        if user_last_emotion:
-            shared_emotions = shared_emotions.filter(emotion=user_last_emotion)
-        
-        # Get the most recent emotion for each user
         latest_emotions = {}
         for se in shared_emotions.order_by('-created_at'):
             if se.user_id not in latest_emotions:
-                latest_emotions[se.user_id] = se
+                if not user_last_emotion or se.emotion == user_last_emotion:
+                    latest_emotions[se.user_id] = se
         
         nearby = []
         for se in latest_emotions.values():
@@ -110,6 +104,7 @@ class NearbyEmotionsView(APIView):
                     'emotion': se.emotion.name,
                     'latitude': se.latitude,
                     'longitude': se.longitude,
+                    'user_id': se.user.id,
                 })
 
         return Response(nearby, status=status.HTTP_200_OK)
