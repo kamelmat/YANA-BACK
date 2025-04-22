@@ -100,9 +100,9 @@ jobs:
       - name: Deploy to Cloud Run
         run: |
           docker run -d \
-            -p 8000:8000 \
+            -p 80:8000 \
             -e PYTHONUNBUFFERED=1 \
-            -e PORT=8000 \
+            -e PORT=80 \
             -e PYTHONPATH=/app:/app/yana:/usr/local/lib/python3.11/site-packages \
             -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
             -e SECRET_KEY="${{ secrets.SECRET_KEY }}" \
