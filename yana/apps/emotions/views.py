@@ -104,7 +104,7 @@ class NearbyEmotionsView(APIView):
                     'emotion': se.emotion.name,
                     'latitude': se.latitude,
                     'longitude': se.longitude,
-                    'user_id': se.user.id,
+                    'user_id': se.user.user_id,
                 })
 
         return Response(nearby, status=status.HTTP_200_OK)
