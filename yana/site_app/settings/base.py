@@ -15,6 +15,7 @@ import os
 import sys
 from datetime import timedelta
 
+
 AUTH_USER_MODEL = 'users.CustomUser'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -38,6 +39,7 @@ LOCAL_APPS = [
     'apps.message',
     'apps.resources',
     'devtools',
+    'encryption',
 ]
 
 THIRD_APPS = [
@@ -120,10 +122,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-DATABASES = {}
-
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -160,3 +158,5 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+

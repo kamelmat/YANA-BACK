@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
-
-    
+from encryption.fields import EncryptedFloatField
+   
 class Emotion(models.Model):
     name = models.CharField(max_length=100)
 
@@ -11,7 +11,7 @@ class Emotion(models.Model):
 class SharedEmotion(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     emotion = models.ForeignKey(Emotion, on_delete=models.CASCADE)
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+    latitude = EncryptedFloatField()
+    longitude = EncryptedFloatField()
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
