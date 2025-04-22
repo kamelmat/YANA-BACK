@@ -25,7 +25,8 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '10.128.0.2',
-    '34.8.224.201'
+    '34.8.224.201',
+    'youare-notalone.duckdns.org'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
