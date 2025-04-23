@@ -9,7 +9,7 @@ class MetricsMiddleware(MiddlewareMixin):
     TRACKED_ENDPOINTS = [
         '/usuario/api/login/',
         '/usuario/api/register/',
-        '/emociones/user/emotions/create/'
+        '/usuario/api/update-avatar/',
     ]
 
     def process_request(self, request):

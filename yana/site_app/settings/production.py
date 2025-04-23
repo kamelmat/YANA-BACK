@@ -16,16 +16,22 @@ load_dotenv(dotenv_path=BASE_DIR / ".env")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
+SECURE_REDIRECT_EXEMPT = ['/health']
+
 DEBUG = True
 
 ALLOWED_HOSTS = [
     '35.194.60.34',
     'localhost',
     '127.0.0.1',
+    '10.128.0.2',
+    '34.8.224.201',
+    'youare-notalone.duckdns.org',
+    '34.95.113.90'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://35.194.60.34',
+    'http://34.8.224.201',
     'http://localhost:5173',
     'http://127.0.0.1:8000',
 ]
