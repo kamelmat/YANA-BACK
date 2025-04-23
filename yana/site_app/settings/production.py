@@ -2,7 +2,10 @@ from .base import *
 from dotenv import load_dotenv
 import os
 from pathlib import Path
+from urllib.parse import urlparse
+import logging
 
+logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # Llega hasta yana/
 load_dotenv(dotenv_path=BASE_DIR / ".env")
@@ -16,24 +19,38 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '35.202.7.31',
-    '127.0.0.1'
+    '35.194.60.34',
+    'localhost',
+    '127.0.0.1',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://35.202.7.31',
+    'http://35.194.60.34',
+    'http://localhost:5173',
+    'http://127.0.0.1:8000',
 ]
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+DATABASE_URL = os.getenv('DATABASE_URL', '')
+
+# Parse the database URL
+db_url = urlparse(DATABASE_URL)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv("DB_NAME"),
-        'USER': os.getenv("DB_USER"),
-        'PASSWORD': os.getenv("DB_PASSWORD"),
-        'HOST': os.getenv("DB_HOST"),
-        'PORT': os.getenv("DB_PORT"),
+        'NAME': db_url.path[1:],  # Remove leading slash
+        'USER': db_url.username,
+        'PASSWORD': db_url.password,
+        'HOST': db_url.hostname,
+        'PORT': db_url.port,
+        'OPTIONS': {
+            'connect_timeout': 10,
+        }
     }
 }
+
+# Log database configuration (without password)
+logger.info(f"Database configuration: host={DATABASES['default']['HOST']}, port={DATABASES['default']['PORT']}, name={DATABASES['default']['NAME']}, user={DATABASES['default']['USER']}")

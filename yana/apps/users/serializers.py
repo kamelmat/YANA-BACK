@@ -95,3 +95,27 @@ class DeleteAccountSerializer(serializers.Serializer):
         if not user.check_password(attrs['password']):
             raise serializers.ValidationError("Incorrect password")
         return attrs
+
+class UpdateAvatarSerializer(serializers.Serializer):
+    avatar_id = serializers.IntegerField(min_value=31, max_value=35)
+
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        try:
+            user = CustomUser.objects.get(email=value)
+        except CustomUser.DoesNotExist:
+            raise serializers.ValidationError("No user found with this email address.")
+        return value
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    token = serializers.CharField()
+    uidb64 = serializers.CharField()
+    new_password = serializers.CharField(write_only=True, min_length=8)
+    confirm_password = serializers.CharField(write_only=True, min_length=8)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError("The two password fields didn't match.")
+        return data

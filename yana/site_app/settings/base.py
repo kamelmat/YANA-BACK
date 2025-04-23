@@ -37,6 +37,7 @@ LOCAL_APPS = [
     'apps.emotions',
     'apps.message',
     'apps.resources',
+    'devtools',
 ]
 
 THIRD_APPS = [
@@ -160,3 +161,16 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Frontend URL for password reset
+FRONTEND_URL = 'http://localhost:5173'
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'youarenotalone2025info@gmail.com'
+EMAIL_HOST_PASSWORD = 'lpgv ehxx rwhv gukp'
+DEFAULT_FROM_EMAIL = 'youarenotalone2025info@gmail.com'  # This will be used as the From address
+SERVER_EMAIL = 'youarenotalone2025info@gmail.com'  # This will be used for error notifications

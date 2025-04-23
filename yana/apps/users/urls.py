@@ -3,6 +3,7 @@ from django.urls import path, include
 from apps.users.views import UserAPIView
 from apps.users.views import *
 from rest_framework_simplejwt.views import TokenRefreshView
+from .views import password_reset_request, password_reset_confirm
 
 urlpatterns = [
     path('api/register/', RegisterView.as_view(), name='register'),
@@ -11,8 +12,11 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/generate-user-id/', GenerateUserIDView.as_view(), name='generate_user_id'),
     path('api/logout/', LogoutView.as_view(), name='logout'),
-    path('api/users/', UserAPIView.as_view(), name='user-list'),
-    path('api/users/<str:id>/', UserDetailView.as_view(), name='user-detail'),
+    path('admin/users/', UserAPIView.as_view(), name='user-list'),
+    path('api/user/details/', UserDetailView.as_view(), name='user-detail'),
     path('api/check-email/', EmailCheckView.as_view(), name='check-email'),
     path('api/delete-account/', DeleteAccountView.as_view(), name='delete-account'),
+    path('api/update-avatar/', UpdateAvatarView.as_view(), name='update-avatar'),
+    path('api/password/reset/', password_reset_request, name='api-password-reset'),
+    path('api/password/reset/confirm/', password_reset_confirm, name='api-password-reset-confirm'),
 ]

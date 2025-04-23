@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from .utils import generate_unique_user_id
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, name, last_name, password=None, user_id = None):
+    def create_user(self, email, name, last_name, password=None, user_id = None, unread_messages = False):
         if not email:
             raise ValueError("El usuario debe tener un email")
         email = self.normalize_email(email)
@@ -16,6 +16,7 @@ class CustomUserManager(BaseUserManager):
             user_id=user_id, 
             name=name,
             last_name=last_name,
+            unread_messages=unread_messages,
             )
         user.set_password(password)
         user.save(using=self._db)
@@ -49,6 +50,7 @@ class CustomUser(AbstractBaseUser):
         blank=True
     )
     avatar_id = models.IntegerField(default=34)
+    unread_messages = models.BooleanField(default=False)
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'

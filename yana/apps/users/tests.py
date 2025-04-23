@@ -4,6 +4,8 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from .models import CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
+from datetime import timedelta
+from django.utils import timezone
 
 class CustomUserModelTest(TestCase):
     def setUp(self):
@@ -166,5 +168,95 @@ class UserViewTest(TestCase):
         url = reverse('delete-account')
         data = {'password': 'testpass123'}
         response = self.client.delete(url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+class UpdateAvatarTests(TestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            email='test@example.com',
+            name='Test',
+            last_name='User',
+            password='testpass123'
+        )
+        self.url = reverse('update-avatar')
+        self.client = APIClient()
+
+    def test_update_avatar_success(self):
+        self.client.force_authenticate(user=self.user)
+        data = {'avatar_id': 34}
+        response = self.client.put(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['avatar_id'], 34)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.avatar_id, 34)
+
+    def test_update_avatar_unauthenticated(self):
+        data = {'avatar_id': 34}
+        response = self.client.put(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_avatar_invalid_id(self):
+        self.client.force_authenticate(user=self.user)
+        data = {'avatar_id': 30}
+        response = self.client.put(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        data = {'avatar_id': 36}
+        response = self.client.put(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_avatar_missing_field(self):
+        self.client.force_authenticate(user=self.user)
+        data = {}
+        response = self.client.put(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+class UpdateAvatarIntegrationTests(TestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            email='test@example.com',
+            name='Test',
+            last_name='User',
+            password='testpass123'
+        )
+        self.client = APIClient()
+        self.url = reverse('update-avatar')
+        
+        refresh = RefreshToken.for_user(self.user)
+        self.token = str(refresh.access_token)
+
+    def test_update_avatar_with_jwt(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
+        data = {'avatar_id': 34}
+        response = self.client.put(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['avatar_id'], 34)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.avatar_id, 34)
+
+    def test_update_avatar_with_invalid_token(self):
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer invalid_token')
+        data = {'avatar_id': 34}
+        response = self.client.put(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_avatar_with_expired_token(self):
+        refresh = RefreshToken.for_user(self.user)
+        token = refresh.access_token
+        token.set_exp(from_time=timezone.now() - timedelta(days=1))
+        expired_token = str(token)
+        
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {expired_token}')
+        data = {'avatar_id': 34}
+        response = self.client.put(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_avatar_with_refresh_token(self):
+        refresh = RefreshToken.for_user(self.user)
+        refresh_token = str(refresh)
+        
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh_token}')
+        data = {'avatar_id': 34}
+        response = self.client.put(self.url, data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 

@@ -24,6 +24,7 @@ from .metrics import registry
 
 def metrics_view(request):
     return HttpResponse(generate_latest(registry), content_type='text/plain')
+from .views import HealthCheckView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,5 +32,6 @@ urlpatterns = [
     path("emociones/", include("apps.emotions.urls")),
     path("recursos/", include("apps.resources.urls")),
     path("mensajes/", include("apps.message.urls")),
+    path('health/', HealthCheckView.as_view(), name='health-check'),
     path('metrics/', metrics_view, name='metrics'),
 ] 
