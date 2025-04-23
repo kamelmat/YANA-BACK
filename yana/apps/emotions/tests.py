@@ -53,21 +53,21 @@ class UserCreateEmotionViewTest(TestCase):
         self.emotion = Emotion.objects.create(name="Happy")
         self.url = reverse('user-create-emotion')
 
-    def test_create_user_emotion_authenticated(self):
-        self.client.force_authenticate(user=self.user)
-        data = {
-            'emotion_id': self.emotion.id,
-            'latitude': 40.7128,
-            'longitude': -74.0060
-        }
-        response = self.client.post(self.url, data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(SharedEmotion.objects.count(), 1)
-        shared_emotion = SharedEmotion.objects.first()
-        self.assertEqual(shared_emotion.user, self.user)
-        self.assertEqual(shared_emotion.emotion, self.emotion)
-        self.assertEqual(shared_emotion.latitude, 40.7128)
-        self.assertEqual(shared_emotion.longitude, -74.0060)
+def test_create_user_emotion_authenticated(self):
+    self.client.force_authenticate(user=self.user)
+    data = {
+        'emotion_id': self.emotion.id,
+        'latitude': 40.7128,
+        'longitude': -74.0060
+    }
+    response = self.client.post(self.url, data)
+    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    self.assertEqual(SharedEmotion.objects.count(), 1)
+    shared_emotion = SharedEmotion.objects.first()
+    self.assertEqual(shared_emotion.user, self.user)
+    self.assertEqual(shared_emotion.emotion, self.emotion)
+    self.assertEqual(shared_emotion.latitude, 40.7128)
+    self.assertEqual(shared_emotion.longitude, -74.0060)
 
     def test_create_user_emotion_unauthenticated(self):
         data = {
