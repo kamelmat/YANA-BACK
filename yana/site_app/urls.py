@@ -18,6 +18,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from prometheus_client import generate_latest
+from django.http import HttpResponse
+from .metrics import registry
+
+def metrics_view(request):
+    return HttpResponse(generate_latest(registry), content_type='text/plain')
 from .views import HealthCheckView
 
 urlpatterns = [
@@ -27,4 +33,5 @@ urlpatterns = [
     path("recursos/", include("apps.resources.urls")),
     path("mensajes/", include("apps.message.urls")),
     path('health/', HealthCheckView.as_view(), name='health-check'),
+    path('metrics/', metrics_view, name='metrics'),
 ] 
