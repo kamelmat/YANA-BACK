@@ -61,51 +61,41 @@ class SharedEmotionListView(generics.ListAPIView):
 #Emociones geospaciales
 class NearbyEmotionsView(APIView):
     def get(self, request):
-        try:
-            lat = float(request.query_params.get('latitude'))
-            lon = float(request.query_params.get('longitude'))
-            radius_km = float(request.query_params.get('radius', 5))  # default 5km
-        except (TypeError, ValueError):
-            return Response({'error': 'Parámetros inválidos'}, status=status.HTTP_400_BAD_REQUEST)
+        if not request.user.is_authenticated:
+            return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        def haversine(lat1, lon1, lat2, lon2):
-            R = 6371  # km
-            dlat = math.radians(lat2 - lat1)
-            dlon = math.radians(lon2 - lon1)
-            a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * \
-                math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
-            return R * (2 * math.atan2(math.sqrt(a), math.sqrt(1 - a)))
-
-        user_last_emotion = None
-        if request.user.is_authenticated:
-            last_emotion = SharedEmotion.objects.filter(
-                user=request.user,
-                is_active=True
-            ).order_by('-created_at').first()
-            if last_emotion:
-                user_last_emotion = last_emotion.emotion
-
-        shared_emotions = SharedEmotion.objects.select_related('emotion').filter(
+        # Get user's last emotion
+        last_emotion = SharedEmotion.objects.filter(
+            user=request.user,
             is_active=True
-        ).exclude(user=request.user) if request.user.is_authenticated else SharedEmotion.objects.select_related('emotion').filter(is_active=True)
-        
+        ).order_by('-created_at').first()
+
+        if not last_emotion:
+            return Response({'error': 'No emotions found for user'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Get the latest emotion for each user
         latest_emotions = {}
-        for se in shared_emotions.order_by('-created_at'):
+        all_emotions = SharedEmotion.objects.filter(
+            is_active=True
+        ).exclude(user=request.user).select_related('emotion', 'user').order_by('-created_at')
+
+        for se in all_emotions:
             if se.user_id not in latest_emotions:
-                if not user_last_emotion or se.emotion == user_last_emotion:
-                    latest_emotions[se.user_id] = se
-        
+                latest_emotions[se.user_id] = se
+
+        # Filter out emotions that don't match the user's emotion
+        matching_emotions = [se for se in latest_emotions.values() if se.emotion == last_emotion.emotion]
+
+        # Serialize the results
         nearby = []
-        for se in latest_emotions.values():
-            distance = haversine(lat, lon, se.latitude, se.longitude)
-            if distance <= radius_km:
-                nearby.append({
-                    'emotion_id': se.emotion.id,
-                    'emotion': se.emotion.name,
-                    'latitude': se.latitude,
-                    'longitude': se.longitude,
-                    'user_id': se.user.user_id,
-                })
+        for se in matching_emotions:
+            nearby.append({
+                'emotion_id': se.emotion.id,
+                'emotion': se.emotion.name,
+                'latitude': se.latitude,
+                'longitude': se.longitude,
+                'user_id': se.user.user_id,
+            })
 
         return Response(nearby, status=status.HTTP_200_OK)
     
