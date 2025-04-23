@@ -27,17 +27,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get Latest Release Version
-        id: get-version
-        run: |
-          LATEST_TAG=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/releases/latest | \
-            jq -r .tag_name)
-          if [ -z "$LATEST_TAG" ]; then
-            echo "No releases found, defaulting to v0.0.0"
-            LATEST_TAG="v0.0.0"
-          fi
-          echo "version=$LATEST_TAG" >> $GITHUB_OUTPUT
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
