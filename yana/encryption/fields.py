@@ -31,15 +31,28 @@ class EncryptedFloatField(models.Field):
         if value is None:
             return value
         
-        try:
-            decrypted = self.cipher.decrypt(value.encode()).decode()
-            return float(decrypted)
-        except InvalidToken:
-            logger.error("Invalid token when decrypting value")
-            return None
-        except ValueError as e:
-            logger.error(f"Decryption failed: {str(e)}")
-            return None
+        # If value is already a float, return it directly
+        if isinstance(value, float):
+            return value
+            
+        # If value is a string, try to decrypt it
+        if isinstance(value, str):
+            try:
+                decrypted = self.cipher.decrypt(value.encode()).decode()
+                return float(decrypted)
+            except InvalidToken:
+                logger.error("Invalid token when decrypting value")
+                return None
+            except ValueError as e:
+                logger.error(f"Decryption failed: {str(e)}")
+                return None
+            except Exception as e:
+                logger.error(f"Unexpected error in from_db_value: {str(e)}")
+                return None
+        
+        # If we get here, the value is of an unexpected type
+        logger.error(f"Unexpected value type in from_db_value: {type(value)}")
+        return None
 
     def to_python(self, value):
         if value is None:
@@ -48,6 +61,11 @@ class EncryptedFloatField(models.Field):
             return value
         if isinstance(value, int):
             return float(value)
+        if isinstance(value, str):
+            try:
+                return float(value)
+            except ValueError:
+                pass
         
         try:
             decrypted = self.cipher.decrypt(value.encode()).decode()
@@ -55,14 +73,23 @@ class EncryptedFloatField(models.Field):
         except (InvalidToken, ValueError) as e:
             logger.error(f"Conversion to Python failed: {str(e)}")
             raise ValidationError("Invalid encrypted value")
+        except Exception as e:
+            logger.error(f"Unexpected error in to_python: {str(e)}")
+            raise ValidationError("Invalid value format")
 
     def get_prep_value(self, value):
         if value is None:
             return value
         
         try:
-            encrypted = self.cipher.encrypt(str(float(value)).encode())
+            # Convert to float first to ensure we have a valid number
+            float_value = float(value)
+            # Convert to string and encrypt
+            encrypted = self.cipher.encrypt(str(float_value).encode())
             return encrypted.decode()
+        except ValueError as e:
+            logger.error(f"Invalid float value: {str(e)}")
+            raise ValidationError("Invalid float value")
         except Exception as e:
             logger.error(f"Value preparation failed: {str(e)}")
             raise ValidationError("Value could not be encrypted")
