@@ -90,6 +90,7 @@ class NearbyEmotionsView(APIView):
         nearby = []
         for se in matching_emotions:
             nearby.append({
+                'shared_emotion_id': se.id,
                 'emotion_id': se.emotion.id,
                 'emotion': se.emotion.name,
                 'latitude': se.latitude,
