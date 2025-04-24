@@ -16,6 +16,7 @@ load_dotenv(dotenv_path=BASE_DIR / ".env")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
+
 SECURE_REDIRECT_EXEMPT = ['/health']
 
 DEBUG = True
