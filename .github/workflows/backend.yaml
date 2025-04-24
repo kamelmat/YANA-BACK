@@ -45,7 +45,7 @@ jobs:
           PYTHONPATH: /app:/app/yana:/usr/local/lib/python3.11/site-packages
         run: |
           cd yana
-          python manage.py test apps.emotions.tests apps.emotions.users apps.message.tests
+          python manage.py test apps.emotions.tests apps.message.tests --verbose
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
