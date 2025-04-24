@@ -95,6 +95,7 @@ class NearbyEmotionsView(APIView):
                 'emotion': se.emotion.name,
                 'latitude': se.latitude,
                 'longitude': se.longitude,
+                'user_id': se.user.id,
                 'created_at': se.created_at
             })
 
