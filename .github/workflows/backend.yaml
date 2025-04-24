@@ -27,6 +27,26 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Tests
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DEBUG: false
+          PYTHONPATH: /app:/app/yana:/usr/local/lib/python3.11/site-packages
+        run: |
+          cd yana
+          python manage.py test apps.emotions.tests apps.emotions.users apps.message.tests --verbose
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -51,7 +71,6 @@ jobs:
           push: true
           tags: |
             us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:latest
-          # us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/prod:${{ steps.get-version.outputs.version }}
           cache-from: type=registry,ref=us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/buildcache
           cache-to: type=registry,ref=us-east1-docker.pkg.dev/${{ env.PROJECT_ID }}/yana-back/buildcache,mode=max
 
