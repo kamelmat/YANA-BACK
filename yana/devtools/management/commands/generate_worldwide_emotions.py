@@ -40,8 +40,9 @@ class Command(BaseCommand):
             try:
                 emotion = random.choice(emotions)
 
-                lat = random.uniform(-90, 90)
-                lon = random.uniform(-180, 180)
+                # Generate random coordinates and format them as strings with 4 decimal places
+                lat = "{:.4f}".format(random.uniform(-90, 90))
+                lon = "{:.4f}".format(random.uniform(-180, 180))
 
                 days_ago = random.uniform(0, 30)
                 created_at = datetime.now() - timedelta(days=days_ago)
@@ -58,7 +59,7 @@ class Command(BaseCommand):
                 created_count += 1
                 self.stdout.write(
                     self.style.SUCCESS(
-                        f'Created emotion: {emotion.name} for user {user.email} at ({lat:.6f}, {lon:.6f})'
+                        f'Created emotion: {emotion.name} for user {user.email} at ({lat}, {lon})'
                     )
                 )
 

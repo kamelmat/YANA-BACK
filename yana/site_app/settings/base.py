@@ -174,3 +174,19 @@ EMAIL_HOST_USER = 'youarenotalone2025info@gmail.com'
 EMAIL_HOST_PASSWORD = 'lpgv ehxx rwhv gukp'
 DEFAULT_FROM_EMAIL = 'youarenotalone2025info@gmail.com'  # This will be used as the From address
 SERVER_EMAIL = 'youarenotalone2025info@gmail.com'  # This will be used for error notifications
+
+FIELD_ENCRYPTION_KEY = "p9kZ1JXx9fqCRxFbKz6vgf3acQeQWpzqd7TWzr5r7JU="
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+}
