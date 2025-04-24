@@ -20,8 +20,6 @@ class SendSupportMessageView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         shared_emotion = serializer.validated_data['shared_emotion']
-        template = serializer.validated_data['template']
-
         sender = request.user
         receiver = shared_emotion.user
 
@@ -31,11 +29,8 @@ class SendSupportMessageView(generics.CreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        SupportMessage.objects.create(
-            sender=sender,
-            receiver=receiver,
-            template=template
-        )
+        # Create the message using serializer.save()
+        serializer.save(sender=sender, receiver=receiver)
 
         receiver.unread_messages = True
         receiver.save()
