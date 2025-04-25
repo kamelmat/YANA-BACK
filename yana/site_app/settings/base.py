@@ -163,7 +163,7 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 # Frontend URL for password reset
-FRONTEND_URL = 'http://localhost:5173'
+FRONTEND_URL = 'https://youare-notalone.duckdns.org'
 
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
