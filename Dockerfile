@@ -28,6 +28,9 @@ RUN apt-get update && apt-get remove -y \
 COPY yana/. yana/
 COPY .github/scripts/start.py start.py
 
+# Make start.py executable and set proper permissions
+RUN chmod +x /app/start.py
+
 # Create non-root user
 RUN useradd -m -u 1001 appuser && chown -R appuser:appuser /app
 USER appuser
@@ -38,4 +41,4 @@ ENV PYTHONUNBUFFERED=1 \
 
 EXPOSE 8000
 
-CMD ["/app/start.py"]
+CMD ["python", "/app/start.py"]
