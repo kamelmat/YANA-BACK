@@ -2,9 +2,11 @@
 FROM python:3.11.12-slim
 WORKDIR /app
 
-# Install system dependencies for psycopg2
+# Install system dependencies for psycopg2 (build and runtime)
 RUN apt-get update && apt-get install -y \
   libpq5 \
+  libpq-dev \
+  gcc \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
@@ -13,6 +15,14 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && \
   pip install -r requirements.txt --no-cache-dir && \
   rm -rf /root/.cache/pip
+
+# Remove build dependencies to reduce image size
+RUN apt-get update && apt-get remove -y \
+  libpq-dev \
+  gcc \
+  && apt-get autoremove -y \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 # Copy application code
 COPY yana/. yana/
