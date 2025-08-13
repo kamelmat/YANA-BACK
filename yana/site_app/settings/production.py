@@ -38,6 +38,14 @@ _default_csrf_trusted = [
 ]
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.getenv('CSRF_TRUSTED_ORIGINS', ','.join(_default_csrf_trusted)).split(',') if o.strip()]
 
+# CORS settings (override base.py)
+_default_cors_origins = [
+    'http://localhost:5173',
+    'https://yana-front.vercel.app',
+]
+CORS_ALLOWED_ORIGINS = [o.strip() for o in os.getenv('CORS_ALLOWED_ORIGINS', ','.join(_default_cors_origins)).split(',') if o.strip()]
+CORS_ALLOW_CREDENTIALS = True
+
 # Optional FRONTEND_URL override via env
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
