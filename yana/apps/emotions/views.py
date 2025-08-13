@@ -73,11 +73,11 @@ class NearbyEmotionsView(APIView):
         if not last_emotion:
             return Response({'error': 'No emotions found for user'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Get the latest emotion for each user
+        # Get the latest emotion for each user (including the requesting user)
         latest_emotions = {}
         all_emotions = SharedEmotion.objects.filter(
             is_active=True
-        ).exclude(user=request.user).select_related('emotion', 'user').order_by('-created_at')
+        ).select_related('emotion', 'user').order_by('-created_at')
 
         for se in all_emotions:
             if se.user_id not in latest_emotions:
